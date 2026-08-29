@@ -38,6 +38,7 @@ export async function POST(req: NextRequest) {
 
     if (!chatProvider) {
       // All providers unavailable — return fallback trial
+      console.warn("[/api/analyze] No AI provider available — returning deterministic fallback");
       const fallback = buildFallbackTrial(orchestratorReq);
       return NextResponse.json({
         data: fallback,
@@ -46,6 +47,8 @@ export async function POST(req: NextRequest) {
       });
     }
 
+    console.log(`[/api/analyze] Running 4-agent trial with provider: ${chatProvider.providerName}`);
+
     // Run the 4-agent parallel trial
     const trialResult = await runAgentTrial(
       orchestratorReq,
@@ -53,6 +56,7 @@ export async function POST(req: NextRequest) {
       chatProvider.providerName
     );
 
+    console.log(`[/api/analyze] Trial complete — provider: ${chatProvider.providerName}`);
     return NextResponse.json({
       data: trialResult,
       provider: chatProvider.providerName,
@@ -60,7 +64,7 @@ export async function POST(req: NextRequest) {
     });
 
   } catch (err) {
-    console.error("[/api/analyze]", err);
+    console.error("[/api/analyze] Unhandled error — falling back to deterministic:", err);
     return NextResponse.json(
       { data: null, provider: "fallback", aiEnhanced: false },
       { status: 200 }

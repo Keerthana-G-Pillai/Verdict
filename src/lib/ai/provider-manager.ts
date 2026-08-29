@@ -2,14 +2,19 @@
 // VERDICT AI — Provider Manager
 //
 // Provider priority (first available wins):
-//   1. IBM watsonx (Granite) — primary for hackathon/IBM scoring
-//   2. Groq (free tier)
+//   1. Groq (llama-3.1-8b-instant / compound-mini) — active default
+//      while watsonx credentials are not yet configured
+//   2. IBM watsonx (Granite) — wire back to position 1 once
+//      WATSONX_API_KEY + WATSONX_PROJECT_ID are set in .env.local
 //   3. OpenRouter (free models)
 //   4. Deterministic fallback — always works, no API required
 //
 // AI_PROVIDER env var overrides auto-detection.
 // All provider selection logic lives here.
 // UI never knows which provider runs.
+//
+// NOTE: swap PROVIDERS back to [watsonx, groq, openrouter] before
+// final submission once watsonx credentials are configured.
 // ============================================================
 
 import type { AIProvider, AIAnalysisRequest, AIAnalysisResponse, AISimulationRequest, AISimulationResponse, ProviderName, ChatMessage } from "./types";
@@ -17,8 +22,14 @@ import { watsonxProvider } from "./watsonx-provider";
 import { groqProvider } from "./groq-provider";
 import { openrouterProvider } from "./openrouter-provider";
 
-// watsonx is first — used when IBM credentials are available (hackathon priority)
-const PROVIDERS: AIProvider[] = [watsonxProvider, groqProvider, openrouterProvider];
+// BEFORE (teammate's branch): [watsonxProvider, groqProvider, openrouterProvider]
+// AFTER  (Groq-first):        [groqProvider, watsonxProvider, openrouterProvider]
+//
+// watsonxProvider.isAvailable() is a pure env-var check — no network call,
+// no timeout, no error. With empty WATSONX_API_KEY it returns false instantly
+// and is skipped. AI_PROVIDER=groq in .env.local also short-circuits the loop
+// so watsonx is never even evaluated.
+const PROVIDERS: AIProvider[] = [groqProvider, watsonxProvider, openrouterProvider];
 
 export interface ProviderResult<T> {
   data: T;
@@ -74,17 +85,29 @@ export async function getAvailableChatFn(): Promise<{
 } | null> {
   const preferredProvider = process.env.AI_PROVIDER as ProviderName | undefined;
 
+  // ── Debug: log env state at request time so failures are visible ──────────
+  console.log(
+    `[VERDICT AI] getAvailableChatFn — AI_PROVIDER="${preferredProvider ?? "(unset)"}" ` +
+    `GROQ_API_KEY=${process.env.GROQ_API_KEY ? `set (${process.env.GROQ_API_KEY.slice(0, 8)}…)` : "MISSING"} ` +
+    `GROQ_MODEL="${process.env.GROQ_MODEL ?? "(unset, will use default)"}" ` +
+    `WATSONX_API_KEY=${process.env.WATSONX_API_KEY ? "set" : "not set"}`
+  );
+
   const ordered = preferredProvider && preferredProvider !== "fallback"
     ? PROVIDERS.filter((p) => p.name === preferredProvider)
     : PROVIDERS;
 
   for (const provider of ordered) {
-    if (!(await provider.isAvailable())) continue;
+    const available = await provider.isAvailable();
+    console.log(`[VERDICT AI] ${provider.name}.isAvailable() → ${available}`);
+    if (!available) continue;
+    console.log(`[VERDICT AI] selected provider: ${provider.name}`);
     return {
       chatFn: provider.chatRaw.bind(provider),
       providerName: provider.name,
     };
   }
+  console.warn("[VERDICT AI] getAvailableChatFn → null (no provider available)");
   return null;
 }
 

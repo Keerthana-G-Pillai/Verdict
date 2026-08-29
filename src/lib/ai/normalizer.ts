@@ -268,5 +268,8 @@ export function mergeAgentTrial(
     conditions,
     recommendations,
     analyzerVersion: `4-agent-${provider}-v2.0`,
+    // Stamp so the result page knows AI ran and can skip re-running on revisit.
+    aiEnhanced: true,
+    aiProvider: provider,
   };
 }

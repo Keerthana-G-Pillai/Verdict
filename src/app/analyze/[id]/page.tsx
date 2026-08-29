@@ -49,7 +49,9 @@ export default function AnalysisResultPage() {
   const [memorySaved, setMemorySaved] = useState(false);
   const [aiProvider, setAiProvider] = useState<ProviderName | null>(null);
   const feedRef = useRef<HTMLDivElement>(null);
-  const hasStarted = useRef(false);
+  // Keyed to `id` so a new analysis URL always triggers a fresh run,
+  // even if the component is still mounted from a previous navigation.
+  const hasStarted = useRef<string | null>(null);
 
   // Auto-scroll evidence feed
   useEffect(() => {
@@ -65,11 +67,14 @@ export default function AnalysisResultPage() {
       return;
     }
 
-    // If already complete (persisted from a previous visit), show results
-    if (stored.analyzedAt && stored.riskFindings.length > 0) {
+    // If already complete AND AI-enhanced, show the cached result as-is.
+    // If analyzedAt is set but aiEnhanced is false (deterministic-only run),
+    // fall through and run the AI layer on top.
+    if (stored.analyzedAt && stored.riskFindings.length > 0 && stored.aiEnhanced !== false) {
       setResult(stored);
       setStages(stored.stages.length > 0 ? stored.stages : PIPELINE_STAGES.map((s) => ({ ...s, status: "complete" as const })));
       setEvents(stored.events);
+      if (stored.aiProvider) setAiProvider(stored.aiProvider as ProviderName);
       setMemorySaved(isInMemory(id));
       return;
     }
@@ -111,8 +116,10 @@ export default function AnalysisResultPage() {
           setAiProvider(provider as ProviderName);
         }
       }
-    } catch {
-      // AI unavailable — use deterministic result silently
+    } catch (aiErr) {
+      // AI call failed — deterministic result already shown.
+      // Log to browser console so failures are visible during development.
+      console.error("[VERDICT] /api/analyze failed — showing deterministic result:", aiErr);
     }
 
     setResult(finalResult);
@@ -123,11 +130,11 @@ export default function AnalysisResultPage() {
   }, [id, getAnalysis, router, saveAnalysis, isInMemory]);
 
   useEffect(() => {
-    if (!hasStarted.current) {
-      hasStarted.current = true;
+    if (hasStarted.current !== id) {
+      hasStarted.current = id;
       runAnalysis();
     }
-  }, [runAnalysis]);
+  }, [id, runAnalysis]);
 
   const handleSaveToMemory = useCallback(() => {
     if (result) {

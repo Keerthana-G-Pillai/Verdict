@@ -9,10 +9,14 @@ import { buildAnalysisPrompt, buildSimulationPrompt } from "./prompts";
 import { validateAnalysisResponse, validateSimulationResponse } from "./validator";
 
 const GROQ_API_URL = "https://api.groq.com/openai/v1/chat/completions";
-// llama-3.1-8b-instant is verified free-tier on Groq (fast + free)
-const MODEL = process.env.GROQ_MODEL ?? "llama-3.1-8b-instant";
+// Default model — resolved at call time so .env.local changes take effect
+// without a full server restart (hot-reload safe).
+const DEFAULT_MODEL = "llama-3.1-8b-instant";
 
 async function callGroqMessages(messages: ChatMessage[], apiKey: string, opts: { maxTokens?: number } = {}): Promise<string> {
+  // Read at call time, not module-load time, so env changes picked up on restart.
+  const model = process.env.GROQ_MODEL ?? DEFAULT_MODEL;
+
   const controller = new AbortController();
   const timeout = setTimeout(() => controller.abort(), 25000);
 
@@ -24,7 +28,7 @@ async function callGroqMessages(messages: ChatMessage[], apiKey: string, opts: {
         "Content-Type": "application/json",
       },
       body: JSON.stringify({
-        model: MODEL,
+        model,
         messages,
         temperature: 0.3,
         max_tokens: opts.maxTokens ?? 2048,

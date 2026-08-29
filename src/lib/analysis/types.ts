@@ -131,6 +131,12 @@ export interface AnalysisResult {
   analyzedAt: string;       // ISO timestamp
   analyzerVersion: string;
   executionMs: number;
+
+  // AI enhancement metadata — set by mergeAgentTrial when AI ran successfully.
+  // Used by the result page to: (a) display the correct badge, (b) skip
+  // re-running the AI layer on revisit (avoids double-billing API calls).
+  aiEnhanced?: boolean;
+  aiProvider?: string;
 }
 
 // ── Persisted memory record ──────────────────────────────────
