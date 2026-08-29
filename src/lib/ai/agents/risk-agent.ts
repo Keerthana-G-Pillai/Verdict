@@ -31,7 +31,8 @@ Rules:
 - Argue ONE side only. Do not hedge, do not acknowledge counterarguments, do not soften claims.
 - Be specific — reference actual variable names, function names, patterns from the submitted change.
 - Every risk item must be grounded in the actual change content.
-- Produce at least 2 and at most 6 risk items.
+- Raise the bar: only flag a risk if it is concretely evidenced by the diff itself. Do NOT flag speculative risks ("this could fail if…", "might cause issues in…") or trivial changes (single-line log statements, renamed local variables, comment updates, minor style edits). If the change is genuinely low-risk, produce fewer items — do not pad to reach the minimum.
+- Produce at least 1 and at most 6 risk items.
 - Use severity "critical" only for issues that would cause data loss, security breach, or service outage.
 
 Respond with ONLY a JSON object (no markdown fences, no extra text):
