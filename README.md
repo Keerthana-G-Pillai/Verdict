@@ -126,9 +126,11 @@ src/
 │   │   └── [id]/page.tsx          # Conflict detection + strategy
 │   ├── analyses/page.tsx           # Analysis history
 │   ├── memory/page.tsx             # Engineering memory
+│   ├── settings/page.tsx           # AI provider status + key configuration
 │   └── api/
 │       ├── analyze/route.ts        # 4-agent analysis endpoint
-│       └── simulate/route.ts       # Merge simulation endpoint
+│       ├── simulate/route.ts       # Merge simulation endpoint
+│       └── status/route.ts         # Provider health check endpoint
 │
 ├── lib/
 │   ├── ai/
