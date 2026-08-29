@@ -1,7 +1,7 @@
 "use client";
 
-import { useState, useCallback } from "react";
-import { useRouter } from "next/navigation";
+import { Suspense, useState, useCallback, useEffect, useRef } from "react";
+import { useRouter, useSearchParams } from "next/navigation";
 import AppShell from "@/components/layout/AppShell";
 import ChangeTypeSelector, { CHANGE_TYPES } from "@/components/analysis/ChangeTypeSelector";
 import type { ChangeType, AnalysisInput } from "@/lib/analysis/types";
@@ -14,8 +14,11 @@ const LANGUAGES = [
   "Ruby", "PHP", "Swift", "Kotlin", "C++", "SQL", "Other",
 ];
 
-export default function AnalyzeInputPage() {
+// useSearchParams() requires a Suspense boundary for static prerendering.
+// Inner component holds all logic; the exported default wraps it.
+function AnalyzeInputInner() {
   const router = useRouter();
+  const searchParams = useSearchParams();
   const saveAnalysis = useAnalysisStore((s) => s.saveAnalysis);
 
   const [changeType, setChangeType] = useState<ChangeType>("code");
@@ -28,6 +31,8 @@ export default function AnalyzeInputPage() {
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
   const [showDemo, setShowDemo] = useState(false);
+  // Track whether the auto-submit from ?demo= has already fired
+  const autoSubmitFired = useRef(false);
 
   const currentTypeConfig = CHANGE_TYPES.find((t) => t.id === changeType)!;
 
@@ -43,6 +48,36 @@ export default function AnalyzeInputPage() {
     setShowDemo(false);
     setError("");
   }, []);
+
+  // ?demo=<scenarioId> — auto-load and immediately submit the scenario.
+  // Used by the landing page "See VERDICT in Action →" button.
+  useEffect(() => {
+    const demoParam = searchParams.get("demo");
+    if (!demoParam || autoSubmitFired.current) return;
+    const scenario = DEMO_ANALYSIS_SCENARIOS.find((s) => s.id === demoParam);
+    if (!scenario) return;
+    autoSubmitFired.current = true;
+
+    // Build and save the input, then navigate directly — skip the form
+    const input: AnalysisInput = {
+      id: nanoid(),
+      title: scenario.input.title,
+      changeType: scenario.input.changeType,
+      language: scenario.input.language || undefined,
+      content: scenario.input.content,
+      description: scenario.input.description || undefined,
+      createdAt: new Date().toISOString(),
+    };
+    saveAnalysis({
+      id: input.id, input, stages: [], events: [],
+      context: { summary: "", changeType: input.changeType, detectedDomain: "", affectedAreas: [], dependencies: [], scope: "moderate" },
+      riskFindings: [], safetyFindings: [], simulationResults: [], evidence: [],
+      riskScore: 0, confidence: 0, criticalCount: 0, highCount: 0, mediumCount: 0, lowCount: 0,
+      verdict: "approved", verdictRationale: "", conditions: [], recommendations: [],
+      analyzedAt: "", analyzerVersion: "", executionMs: 0,
+    } as import("@/lib/analysis/types").AnalysisResult);
+    router.push(`/analyze/${input.id}`);
+  }, [searchParams, saveAnalysis, router]);
 
   const handleSubmit = useCallback(async () => {
     if (!content.trim() || content.trim().length < 10) {
@@ -249,5 +284,13 @@ export default function AnalyzeInputPage() {
       </div>
       <style>{`@keyframes spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }`}</style>
     </AppShell>
+  );
+}
+
+export default function AnalyzeInputPage() {
+  return (
+    <Suspense>
+      <AnalyzeInputInner />
+    </Suspense>
   );
 }

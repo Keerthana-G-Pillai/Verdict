@@ -47,7 +47,10 @@ export default function AnalysisResultPage() {
   const [isRunning, setIsRunning] = useState(false);
   const [activeTab, setActiveTab] = useState<TabId>("overview");
   const [memorySaved, setMemorySaved] = useState(false);
-  const [aiProvider, setAiProvider] = useState<ProviderName | null>(null);
+  const stored0 = getAnalysis(id);
+  const [aiProvider, setAiProvider] = useState<ProviderName | null>(
+    (stored0?.aiProvider as ProviderName | undefined) ?? null
+  );
   const feedRef = useRef<HTMLDivElement>(null);
   // Keyed to `id` so a new analysis URL always triggers a fresh run,
   // even if the component is still mounted from a previous navigation.
@@ -314,6 +317,7 @@ export default function AnalysisResultPage() {
                   conditions={result.conditions}
                   criticalCount={result.criticalCount}
                   highCount={result.highCount}
+                  saferAlternative={result.saferAlternative}
                 />
 
                 {/* Tab navigation */}

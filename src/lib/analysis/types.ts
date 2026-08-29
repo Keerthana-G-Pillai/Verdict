@@ -137,6 +137,8 @@ export interface AnalysisResult {
   // re-running the AI layer on revisit (avoids double-billing API calls).
   aiEnhanced?: boolean;
   aiProvider?: string;
+  // Safer alternative from the Judge agent (may be null if not applicable).
+  saferAlternative?: string | null;
 }
 
 // ── Persisted memory record ──────────────────────────────────

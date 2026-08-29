@@ -180,8 +180,8 @@ export default function MemoryPage() {
                               style={{ color: record.riskScore >= 60 ? "#ffb4ab" : record.riskScore >= 35 ? "#ffb95f" : "#6ffbbe" }}>
                               {record.riskScore}
                             </div>
-                            <span className="text-label-mono text-on-surface-variant" style={{ fontSize: "10px" }}>
-                              {new Date(record.savedAt).toLocaleDateString()}
+                            <span className="text-label-mono text-on-surface-variant" style={{ fontSize: "10px" }} suppressHydrationWarning>
+                              {new Date(record.savedAt).toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" })}
                             </span>
                           </div>
                         </div>
@@ -234,8 +234,8 @@ export default function MemoryPage() {
                               style={{ color: record.integrationRiskScore >= 60 ? "#ffb4ab" : record.integrationRiskScore >= 35 ? "#ffb95f" : "#6ffbbe" }}>
                               {record.integrationRiskScore}
                             </div>
-                            <span className="text-label-mono text-on-surface-variant" style={{ fontSize: "10px" }}>
-                              {new Date(record.savedAt).toLocaleDateString()}
+                            <span className="text-label-mono text-on-surface-variant" style={{ fontSize: "10px" }} suppressHydrationWarning>
+                              {new Date(record.savedAt).toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" })}
                             </span>
                           </div>
                         </div>

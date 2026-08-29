@@ -11,9 +11,31 @@ interface WebGLShaderProps {
  * WebGL hero shader — faithful port of the Stitch ANIMATION_3 shader.
  * Renders flowing noise-based cyan highlights on near-black charcoal.
  * Cleans up WebGL context and RAF on unmount.
+ * Falls back to a static CSS gradient when prefers-reduced-motion is set
+ * or when WebGL is unavailable (e.g. low-power mode, screen-share).
  */
 export default function WebGLShader({ className = "", opacity = 0.6 }: WebGLShaderProps) {
   const canvasRef = useRef<HTMLCanvasElement>(null);
+
+  // Reduced-motion / no-WebGL fallback — render a static gradient instead.
+  const prefersReduced =
+    typeof window !== "undefined" &&
+    window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+
+  if (prefersReduced) {
+    return (
+      <div
+        className={className}
+        aria-hidden="true"
+        style={{
+          width: "100%",
+          height: "100%",
+          opacity,
+          background: "radial-gradient(ellipse at 60% 40%, rgba(0,240,255,0.08) 0%, transparent 60%), radial-gradient(ellipse at 30% 70%, rgba(111,251,190,0.05) 0%, transparent 50%), #0a0a0b",
+        }}
+      />
+    );
+  }
 
   useEffect(() => {
     const canvas = canvasRef.current;

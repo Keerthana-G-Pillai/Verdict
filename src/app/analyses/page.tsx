@@ -240,9 +240,9 @@ export default function AnalysesPage() {
                                 {a.context.detectedDomain}
                               </span>
                             )}
-                            <span className="text-label-mono text-on-surface-variant" style={{ fontSize: "11px" }}>
+                            <span className="text-label-mono text-on-surface-variant" style={{ fontSize: "11px" }} suppressHydrationWarning>
                               <span className="material-symbols-outlined text-[12px] align-middle mr-0.5">schedule</span>
-                              {new Date(a.analyzedAt).toLocaleString()}
+                              {new Date(a.analyzedAt).toLocaleString("en-US", { month: "short", day: "numeric", year: "numeric", hour: "2-digit", minute: "2-digit" })}
                             </span>
                             {a.criticalCount > 0 && (
                               <span className="text-label-mono" style={{ color: "#ffb4ab", fontSize: "11px" }}>

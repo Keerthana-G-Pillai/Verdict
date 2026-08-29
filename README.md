@@ -1,14 +1,18 @@
 # VERDICT — AI-Powered Change Intelligence Platform
 
-> **"What happens if we make this change?"**
+> **"Git sees no conflict. VERDICT found one."**
 
-VERDICT is a production-quality AI platform that analyzes proposed engineering changes, detects hidden risks and semantic conflicts, and issues evidence-based verdicts.
+VERDICT is a production-quality AI platform that analyzes proposed engineering changes, detects semantic conflicts Git cannot see, and issues evidence-based verdicts.
+
+**The scenario:** Developer A migrates from JWT to session-based auth. Developer B extends JWT refresh token lifetime. Git merges cleanly. VERDICT says: *"These changes fundamentally conflict — one removes the authentication mechanism the other depends on."*
 
 ---
 
 ## 🏆 Hackathon Product
 
 Built for IBM's hackathon. VERDICT uses IBM Granite (via watsonx.ai) as its primary AI engine, with Groq and OpenRouter as free-tier fallbacks.
+
+> ⚠️ **Before final submission:** set `WATSONX_API_KEY` + `WATSONX_PROJECT_ID` in `.env.local` and swap the `PROVIDERS` array in `src/lib/ai/provider-manager.ts` back to `[watsonxProvider, groqProvider, openrouterProvider]` so IBM Granite runs first.
 
 ---
 

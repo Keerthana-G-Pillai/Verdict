@@ -8,6 +8,7 @@ interface VerdictCardProps {
   conditions: string[];
   criticalCount: number;
   highCount: number;
+  saferAlternative?: string | null;
 }
 
 const VERDICT_CONFIG: Record<VerdictOutcome, {
@@ -72,6 +73,7 @@ export default function VerdictCard({
   conditions,
   criticalCount,
   highCount,
+  saferAlternative,
 }: VerdictCardProps) {
   const cfg = VERDICT_CONFIG[verdict];
   const riskCfg = RISK_COLOR(riskScore);
@@ -195,6 +197,24 @@ export default function VerdictCard({
                   </p>
                 </div>
               ))}
+            </div>
+          </div>
+        )}
+
+        {/* Safer Alternative — from Judge agent */}
+        {saferAlternative && (
+          <div
+            className="flex gap-3 px-4 py-3 rounded mt-2"
+            style={{ backgroundColor: "rgba(0,240,255,0.04)", border: "1px solid rgba(0,240,255,0.15)" }}
+          >
+            <span className="material-symbols-outlined text-primary-container shrink-0 mt-0.5" style={{ fontSize: "16px" }}>
+              tips_and_updates
+            </span>
+            <div>
+              <p className="text-label-mono text-primary-container uppercase tracking-wider mb-1" style={{ fontSize: "10px" }}>
+                Safer Alternative
+              </p>
+              <p className="text-code-sm text-on-surface-variant">{saferAlternative}</p>
             </div>
           </div>
         )}

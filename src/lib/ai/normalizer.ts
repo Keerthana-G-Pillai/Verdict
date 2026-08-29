@@ -271,5 +271,6 @@ export function mergeAgentTrial(
     // Stamp so the result page knows AI ran and can skip re-running on revisit.
     aiEnhanced: true,
     aiProvider: provider,
+    saferAlternative: trial.judgeAgent.saferAlternative,
   };
 }

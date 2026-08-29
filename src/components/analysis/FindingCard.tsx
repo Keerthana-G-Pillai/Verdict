@@ -129,10 +129,18 @@ export default function FindingCard({ finding }: FindingCardProps) {
           </div>
         )}
 
-        <div className="flex items-center justify-between mt-1">
-          <span className="text-label-mono text-on-surface-variant">
-            Confidence: <span style={{ color: "#e5e2e3" }}>{finding.confidence}%</span>
-          </span>
+        {/* Confidence bar */}
+        <div className="mt-1">
+          <div className="flex items-center justify-between mb-1">
+            <span className="text-label-mono text-on-surface-variant" style={{ fontSize: "10px" }}>CONFIDENCE</span>
+            <span className="text-label-mono" style={{ color: "#e5e2e3", fontSize: "10px" }}>{finding.confidence}%</span>
+          </div>
+          <div className="h-1 rounded-full" style={{ backgroundColor: "rgba(255,255,255,0.06)" }}>
+            <div
+              className="h-1 rounded-full transition-all duration-500"
+              style={{ width: `${finding.confidence}%`, backgroundColor: cfg.dot, opacity: 0.7 }}
+            />
+          </div>
         </div>
       </div>
     </div>

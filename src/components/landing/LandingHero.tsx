@@ -117,8 +117,9 @@ export default function LandingHero() {
             className="flex flex-col sm:flex-row items-center gap-4 animate-fade-in-up"
             style={{ animationDelay: "0.4s", opacity: 0 }}
           >
+            {/* One-click demo — loads the signature auth-conflict scenario and auto-submits */}
             <Link
-              href="/analyze"
+              href="/analyze?demo=auth-conflict"
               className="w-full sm:w-auto px-8 py-3 bg-primary-container text-on-primary-container text-body-md font-bold rounded hover:bg-primary-fixed-dim transition-colors"
               style={{
                 boxShadow: "0 0 15px rgba(0,240,255,0.3)",
@@ -130,13 +131,13 @@ export default function LandingHero() {
                 (e.currentTarget as HTMLElement).style.boxShadow = "0 0 15px rgba(0,240,255,0.3)";
               }}
             >
-              Analyze a Change
+              See VERDICT in Action →
             </Link>
             <Link
-              href="/dashboard"
+              href="/analyze"
               className="w-full sm:w-auto px-8 py-3 bg-transparent text-on-surface border border-outline-variant text-body-md rounded hover:bg-surface-container-high transition-colors"
             >
-              Explore Demo
+              Analyze a Change
             </Link>
           </div>
         </div>
