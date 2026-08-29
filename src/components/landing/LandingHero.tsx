@@ -109,7 +109,7 @@ export default function LandingHero() {
             className="text-body-lg text-on-surface-variant mb-10 max-w-2xl mx-auto animate-fade-in-up"
             style={{ animationDelay: "0.3s", opacity: 0 }}
           >
-            VERDICT uses AI-powered change intelligence to analyze, challenge, validate, and simulate engineering changes before they reach production.
+            VERDICT uses AI-powered change intelligence to statically analyze, challenge, and semantically validate engineering changes before they reach production.
           </p>
 
           {/* CTAs */}
@@ -303,10 +303,10 @@ export default function LandingHero() {
                   <h3 className="text-label-mono text-tertiary-fixed-dim uppercase tracking-wider">Simulate</h3>
                 </div>
                 <h4 className="text-headline-md font-semibold text-on-surface mb-3">
-                  Test whether changes safely coexist.
+                   Detect whether changes safely coexist.
                 </h4>
                 <p className="text-body-md text-on-surface-variant mb-6">
-                  Run high-fidelity simulations in isolated shadow environments. Compare two changes for semantic conflicts that Git cannot detect — then get an evidence-based recommendation.
+                   Perform deep semantic analysis on two changes simultaneously. Compare behavioral assumptions for conflicts that Git cannot detect — then get an evidence-based recommendation.
                 </p>
                 <Link
                   href="/simulate"

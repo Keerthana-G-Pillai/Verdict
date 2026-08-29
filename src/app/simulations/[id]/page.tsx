@@ -514,9 +514,9 @@ function IntegrationTab({ result }: { result: SimulationResult }) {
       >
         <span className="material-symbols-outlined text-tertiary-fixed-dim shrink-0 mt-0.5" style={{ fontSize: "16px" }}>info</span>
         <p className="text-body-md text-on-surface-variant">
-          No execution environment connected. All integration checks are based on{" "}
+          All integration checks are based on{" "}
           <strong className="text-on-surface">static analysis</strong> and{" "}
-          <strong className="text-on-surface">semantic inference</strong>. Real test execution requires a connected sandbox.
+          <strong className="text-on-surface">semantic inference</strong>. VERDICT performs static and semantic validation only — no code is executed.
         </p>
       </div>
 

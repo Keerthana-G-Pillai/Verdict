@@ -549,13 +549,13 @@ function ValidationTab({ result }: { result: AnalysisResult }) {
           <h3 className="text-body-md font-semibold text-on-surface">Validation Environment Status</h3>
         </div>
         <p className="text-body-md text-on-surface-variant">
-          No execution environment is connected. The simulation stage used{" "}
+          Validation is performed via{" "}
           <strong className="text-on-surface">static analysis</strong> and{" "}
           <strong className="text-on-surface">pattern inference</strong> only.
-          Results below are analytical assessments — not test execution results.
+          Results below are analytical assessments — no code is executed.
         </p>
         <p className="text-body-md text-on-surface-variant mt-2">
-          Connect a sandbox environment in Settings to enable real test execution.
+          VERDICT performs static and semantic validation only. No sandbox execution is performed or implied.
         </p>
       </div>
 

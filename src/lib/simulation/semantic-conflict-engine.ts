@@ -391,12 +391,12 @@ export function buildIntegrationChecks(
     confidence: 68,
   });
 
-  // Execution environment
+  // Static analysis coverage note
   checks.push({
-    label: "Execution Environment",
+    label: "Analysis Coverage",
     category: "execution",
     outcome: "not_connected",
-    detail: "No execution environment connected. Real test execution requires a sandbox environment.",
+    detail: "All checks are static and semantic analysis only. No code is executed — findings are based on pattern recognition and behavioral inference.",
     analysisType: "execution_evidence",
     confidence: 0,
   });

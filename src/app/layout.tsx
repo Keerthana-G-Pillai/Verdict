@@ -18,7 +18,7 @@ const jetbrainsMono = JetBrains_Mono({
 export const metadata: Metadata = {
   title: "VERDICT — Change Intelligence Platform",
   description:
-    "AI-powered change intelligence that analyzes, validates, and simulates engineering changes before they reach production.",
+    "AI-powered change intelligence that statically analyzes and semantically validates engineering changes before they reach production.",
   keywords: ["change intelligence", "code review", "merge simulation", "engineering"],
 };
 

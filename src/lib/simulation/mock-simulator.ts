@@ -173,7 +173,7 @@ export const mockSimulator: Simulator = {
     // ╚════════════════════════════════════╝
     setStage("simulate_integration", "running");
     await sleep(400);
-    emit("simulate_integration", "No execution environment connected — using semantic analysis", "info");
+    emit("simulate_integration", "Running semantic analysis — no code execution", "info");
     await sleep(300);
     emit("simulate_integration", "Modeling combined change behavior");
     await sleep(500);
@@ -192,7 +192,7 @@ export const mockSimulator: Simulator = {
     setStage(
       "simulate_integration",
       conflictChecks.length > 0 ? "warning" : "complete",
-      "Static analysis · No execution environment"
+      "Static and semantic analysis"
     );
     await sleep(200);
 

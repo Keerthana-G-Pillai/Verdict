@@ -531,11 +531,11 @@ const GENERIC_RISK_FINDINGS: FindingTemplate[] = [
   {
     id: "gen-test-coverage",
     title: "Test Coverage Cannot Be Verified",
-    description: "Without an execution environment, test coverage for the proposed change cannot be verified. Untested code changes carry inherent risk.",
+    description: "Test coverage for the proposed change cannot be verified via static analysis alone. Untested code changes carry inherent risk.",
     severity: "medium",
     affectedArea: "Test Suite",
     recommendation: "Ensure new and modified code paths are covered by automated tests.",
-    evidence: "Static analysis: no test execution environment connected.",
+    evidence: "Static analysis: test coverage cannot be assessed from code structure alone.",
     confidence: 70,
   },
   {
@@ -591,14 +591,14 @@ const SIMULATION_RESULTS: Record<string, SimulationResult[]> = {
       type: "static_analysis",
       label: "Payment Flow Static Analysis",
       outcome: "warning",
-      detail: "Static analysis identified retry logic without idempotency protection. Execution simulation not available without a connected environment.",
+      detail: "Static analysis identified retry logic without idempotency protection. This is a structural pattern finding — no code was executed.",
       confidence: 82,
     },
     {
       type: "inferred",
       label: "Load Pattern Assessment",
       outcome: "warning",
-      detail: "Inferred: under moderate concurrent load, increased retries will increase peak database connections by an estimated 40–60%. No actual execution performed.",
+      detail: "Inferred: under moderate concurrent load, increased retries will increase peak database connections by an estimated 40–60%. This is a probabilistic inference — no execution was performed.",
       confidence: 68,
     },
   ],
@@ -630,7 +630,7 @@ const SIMULATION_RESULTS: Record<string, SimulationResult[]> = {
       type: "inferred",
       label: "Table Lock Duration Estimate",
       outcome: "warning",
-      detail: "Inferred: ALTER TABLE on tables with >1M rows typically acquires exclusive locks for 30–180 seconds. No actual execution performed.",
+      detail: "Inferred: ALTER TABLE on tables with >1M rows typically acquires exclusive locks for 30–180 seconds. This is a probabilistic inference — no execution was performed.",
       confidence: 65,
     },
   ],
@@ -639,14 +639,14 @@ const SIMULATION_RESULTS: Record<string, SimulationResult[]> = {
       type: "static_analysis",
       label: "Static Code Analysis",
       outcome: "skipped",
-      detail: "No execution environment connected. Analysis is based on static inspection of submitted code and inferred domain patterns.",
+      detail: "Analysis is based on static inspection of submitted code and inferred domain patterns. No code was executed.",
       confidence: 70,
     },
     {
       type: "inferred",
       label: "Change Impact Assessment",
       outcome: "skipped",
-      detail: "Impact assessed via pattern matching against submitted content. Real execution evidence requires a connected test environment.",
+      detail: "Impact assessed via pattern matching against submitted content. This is a structural and semantic inference — no execution was performed.",
       confidence: 60,
     },
   ],
@@ -829,7 +829,7 @@ export const mockAnalyzer: Analyzer = {
     }));
 
     emit("safety_validation", `Found ${safetyFindings.length} safety indicator${safetyFindings.length !== 1 ? "s" : ""}`, "success");
-    emit("safety_validation", "Note: No execution environment connected — static analysis only", "info");
+    emit("safety_validation", "Note: All validation is static and semantic analysis only", "info");
 
     setStage("safety_validation", "complete", `${safetyFindings.length} controls evaluated`);
     await sleep(300);
@@ -842,7 +842,7 @@ export const mockAnalyzer: Analyzer = {
 
     emit("simulation", "Preparing validation assessment");
     await sleep(500);
-    emit("simulation", "No execution environment connected — using static analysis", "info");
+    emit("simulation", "Running static and semantic analysis — no code execution", "info");
     await sleep(400);
     emit("simulation", "Running inferred impact assessment");
     await sleep(500);
@@ -853,7 +853,7 @@ export const mockAnalyzer: Analyzer = {
     const simStatus = simulationResults.some((s) => s.outcome === "failed") ? "warning" : "complete";
     emit("simulation", "Validation assessment complete", simStatus === "warning" ? "warning" : "success");
 
-    setStage("simulation", simStatus, "Static analysis · No execution environment");
+    setStage("simulation", simStatus, "Static and semantic analysis");
     await sleep(300);
 
     // ╔═══════════════════════════════════════════════════╗
