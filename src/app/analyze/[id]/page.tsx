@@ -308,6 +308,25 @@ export default function AnalysisResultPage() {
             {/* Results */}
             {result && (
               <div className="flex flex-col gap-lg">
+                {/* Agent disagreement banner */}
+                {result.agentDisagreement && (
+                  <div
+                    className="flex gap-3 px-5 py-4 rounded-lg"
+                    style={{ backgroundColor: "rgba(255,185,95,0.07)", border: "1px solid rgba(255,185,95,0.3)" }}
+                  >
+                    <span className="material-symbols-outlined shrink-0 mt-0.5" style={{ color: "#ffb95f", fontSize: "18px" }}>
+                      balance
+                    </span>
+                    <div>
+                      <p className="text-body-md font-semibold text-on-surface mb-0.5">Agent Disagreement Detected</p>
+                      <p className="text-body-md text-on-surface-variant">
+                        Risk Intelligence and Safety Validation reached conflicting conclusions on this change.
+                        Both perspectives are represented in the Findings tab. Confidence is reduced; additional human review is recommended before proceeding.
+                      </p>
+                    </div>
+                  </div>
+                )}
+
                 {/* Verdict card — always first */}
                 <VerdictCard
                   verdict={result.verdict}
@@ -493,11 +512,165 @@ function OverviewTab({ result }: { result: AnalysisResult }) {
         </div>
       </div>
 
-      {/* Execution time */}
-      <div className="flex items-center gap-sm text-label-mono text-on-surface-variant" style={{ fontSize: "11px" }}>
-        <span className="material-symbols-outlined text-[14px]">schedule</span>
-        Analyzed in {result.executionMs}ms · {result.analyzerVersion}
+      {/* Evidence Graph — static SVG/CSS, no external lib */}
+      <div className="card p-lg">
+        <h3 className="text-headline-md text-on-surface mb-md flex items-center gap-sm">
+          <span className="material-symbols-outlined text-[18px] text-tertiary-fixed-dim">schema</span>
+          Evidence Graph
+        </h3>
+        <EvidenceGraph result={result} />
       </div>
+
+      {/* Analysis Metadata */}
+      <div className="card p-lg">
+        <h3 className="text-headline-md text-on-surface mb-md flex items-center gap-sm">
+          <span className="material-symbols-outlined text-[18px] text-on-surface-variant">info</span>
+          Analysis Metadata
+        </h3>
+        <div className="grid grid-cols-2 gap-x-lg gap-y-sm">
+          {[
+            { label: "Analysis ID", value: result.id },
+            { label: "Timestamp", value: result.analyzedAt ? new Date(result.analyzedAt).toLocaleString("en-US", { month: "short", day: "numeric", year: "numeric", hour: "2-digit", minute: "2-digit" }) : "—" },
+            { label: "Engine Version", value: result.analyzerVersion || "—" },
+            { label: "Evidence Types", value: [...new Set(result.evidence.map((e) => e.category.replace(/_/g, " ")))].join(", ") || "static analysis" },
+            { label: "AI Provider", value: result.aiProvider ? result.aiProvider.toUpperCase() : "Deterministic Fallback" },
+            { label: "Fallback Used", value: result.aiEnhanced ? "No" : "Yes — no AI provider available" },
+            { label: "Execution Time", value: `${result.executionMs}ms` },
+            { label: "Scope", value: result.context.scope.replace("-", " ") },
+          ].map(({ label, value }) => (
+            <div key={label} className="flex flex-col gap-0.5">
+              <span className="text-label-mono text-on-surface-variant uppercase tracking-wider" style={{ fontSize: "10px" }}>{label}</span>
+              <span className="text-code-sm text-on-surface break-all">{value}</span>
+            </div>
+          ))}
+        </div>
+      </div>
+    </div>
+  );
+}
+
+// ── Evidence Graph (static SVG/CSS, no heavy library) ─────────
+
+function EvidenceGraph({ result }: { result: AnalysisResult }) {
+  const riskCount = result.riskFindings.length;
+  const safetyCount = result.safetyFindings.length;
+  const hasDisagreement = result.agentDisagreement;
+
+  return (
+    <div className="relative w-full overflow-x-auto">
+      <div className="flex items-center justify-between gap-4 min-w-[480px]" style={{ minHeight: "140px" }}>
+        {/* Input node */}
+        <div className="flex flex-col items-center gap-2 shrink-0">
+          <div
+            className="w-12 h-12 rounded-lg flex items-center justify-center border"
+            style={{ backgroundColor: "rgba(0,240,255,0.06)", borderColor: "rgba(0,240,255,0.25)" }}
+          >
+            <span className="material-symbols-outlined text-primary-container text-[22px]">code</span>
+          </div>
+          <span className="text-label-mono text-on-surface-variant text-center" style={{ fontSize: "10px", maxWidth: "64px" }}>
+            Proposed Change
+          </span>
+        </div>
+
+        {/* Arrows in → two agent nodes */}
+        <div className="flex-1 flex flex-col gap-4">
+          {/* Risk agent */}
+          <div className="flex items-center gap-2">
+            <div className="flex-1 h-[1px]" style={{ backgroundColor: riskCount > 0 ? "#ffb4ab" : "#2d2d30" }} />
+            <div
+              className="px-3 py-1.5 rounded border flex items-center gap-1.5 shrink-0"
+              style={{
+                backgroundColor: riskCount > 0 ? "rgba(255,180,171,0.06)" : "rgba(45,45,48,0.4)",
+                borderColor: riskCount > 0 ? "rgba(255,180,171,0.3)" : "#2d2d30",
+              }}
+            >
+              <span className="material-symbols-outlined text-[13px]" style={{ color: riskCount > 0 ? "#ffb4ab" : "#57606a" }}>troubleshoot</span>
+              <span className="text-label-mono" style={{ color: riskCount > 0 ? "#ffb4ab" : "#57606a", fontSize: "10px" }}>
+                Risk · {riskCount}
+              </span>
+            </div>
+            <div className="w-4 h-[1px]" style={{ backgroundColor: riskCount > 0 ? "#ffb4ab" : "#2d2d30" }} />
+          </div>
+          {/* Safety agent */}
+          <div className="flex items-center gap-2">
+            <div className="flex-1 h-[1px]" style={{ backgroundColor: safetyCount > 0 ? "#6ffbbe" : "#2d2d30" }} />
+            <div
+              className="px-3 py-1.5 rounded border flex items-center gap-1.5 shrink-0"
+              style={{
+                backgroundColor: safetyCount > 0 ? "rgba(111,251,190,0.06)" : "rgba(45,45,48,0.4)",
+                borderColor: safetyCount > 0 ? "rgba(111,251,190,0.3)" : "#2d2d30",
+              }}
+            >
+              <span className="material-symbols-outlined text-[13px]" style={{ color: safetyCount > 0 ? "#6ffbbe" : "#57606a" }}>verified</span>
+              <span className="text-label-mono" style={{ color: safetyCount > 0 ? "#6ffbbe" : "#57606a", fontSize: "10px" }}>
+                Safety · {safetyCount}
+              </span>
+            </div>
+            <div className="w-4 h-[1px]" style={{ backgroundColor: safetyCount > 0 ? "#6ffbbe" : "#2d2d30" }} />
+          </div>
+        </div>
+
+        {/* Validation node */}
+        <div className="flex flex-col items-center gap-2 shrink-0">
+          <div
+            className="px-3 py-2 rounded border flex flex-col items-center gap-1"
+            style={{ backgroundColor: "rgba(125,244,255,0.04)", borderColor: "rgba(0,240,255,0.15)" }}
+          >
+            <span className="material-symbols-outlined text-[16px]" style={{ color: "#7df4ff" }}>rule</span>
+            <span className="text-label-mono" style={{ color: "#7df4ff", fontSize: "9px" }}>VALIDATION</span>
+          </div>
+        </div>
+
+        {/* Arrow → Judge */}
+        <div className="flex-1 flex items-center">
+          <div className="flex-1 h-[1px]" style={{ backgroundColor: "#2d2d30" }} />
+          {hasDisagreement && (
+            <span className="material-symbols-outlined text-[12px] mx-1" style={{ color: "#ffb95f" }}>balance</span>
+          )}
+          <div className="flex-1 h-[1px]" style={{ backgroundColor: "#2d2d30" }} />
+        </div>
+
+        {/* Judge node */}
+        <div className="flex flex-col items-center gap-2 shrink-0">
+          <div
+            className="px-3 py-2 rounded border flex flex-col items-center gap-1"
+            style={{ backgroundColor: "rgba(185,202,203,0.04)", borderColor: "#2d2d30" }}
+          >
+            <span className="material-symbols-outlined text-[16px] text-on-surface-variant">gavel</span>
+            <span className="text-label-mono text-on-surface-variant" style={{ fontSize: "9px" }}>JUDGE</span>
+          </div>
+        </div>
+
+        {/* Arrow → Verdict */}
+        <div className="flex-1 h-[1px]" style={{ backgroundColor: "#2d2d30" }} />
+
+        {/* Verdict node */}
+        <div className="flex flex-col items-center gap-2 shrink-0">
+          {(() => {
+            const vColors: Record<string, { bg: string; border: string; text: string }> = {
+              approved:                 { bg: "rgba(111,251,190,0.08)", border: "rgba(111,251,190,0.35)", text: "#6ffbbe" },
+              approved_with_conditions: { bg: "rgba(255,185,95,0.08)",  border: "rgba(255,185,95,0.35)",  text: "#ffb95f" },
+              requires_revision:        { bg: "rgba(255,180,171,0.08)", border: "rgba(255,180,171,0.35)", text: "#ffb4ab" },
+              rejected:                 { bg: "rgba(147,0,10,0.15)",    border: "rgba(255,180,171,0.35)", text: "#ffb4ab" },
+            };
+            const vc = vColors[result.verdict] ?? vColors.requires_revision;
+            return (
+              <div
+                className="px-3 py-2 rounded border flex flex-col items-center gap-1"
+                style={{ backgroundColor: vc.bg, borderColor: vc.border }}
+              >
+                <span className="material-symbols-outlined text-[16px]" style={{ color: vc.text }}>
+                  {result.verdict === "approved" ? "check_circle" : result.verdict === "approved_with_conditions" ? "rule" : result.verdict === "rejected" ? "cancel" : "edit_note"}
+                </span>
+                <span className="text-label-mono" style={{ color: vc.text, fontSize: "9px" }}>VERDICT</span>
+              </div>
+            );
+          })()}
+        </div>
+      </div>
+      <p className="text-label-mono text-on-surface-variant mt-3" style={{ fontSize: "10px" }}>
+        Risk Intelligence and Safety Validation run in parallel with independent contexts. Validation Engine provides static analysis. Decision Engine synthesizes all three.
+      </p>
     </div>
   );
 }

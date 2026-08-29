@@ -257,11 +257,11 @@ export default function LandingHero() {
                 <div className="text-code-sm text-on-surface-variant bg-surface-container-low p-4 rounded border border-surface-variant flex flex-col gap-2">
                   <div className="flex items-center gap-2 text-primary-fixed-dim">
                     <span className="material-symbols-outlined text-[14px]">arrow_right</span>
-                    <span>Scanning dependency graph...</span>
+                    <span>Static analysis complete.</span>
                   </div>
                   <div className="flex items-center gap-2">
                     <span className="material-symbols-outlined text-[14px] text-surface-variant">arrow_right</span>
-                    <span>Found 4 downstream services impacted.</span>
+                    <span>Risk Intelligence: 3 findings. Safety Validation: 4 indicators.</span>
                   </div>
                 </div>
               </div>

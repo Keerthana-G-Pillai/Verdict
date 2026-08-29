@@ -66,23 +66,48 @@ export async function runAgentTrial(
     fileContext: req.fileContext,
   };
 
+  // ── Retry helper: up to 3 attempts with exponential backoff ──────────────
+  // fn always returns a raw string from chatFn; parse converts to typed output.
+  async function withRetry<T>(
+    fn: () => Promise<string>,
+    parse: (raw: string) => T,
+    agentName: string
+  ): Promise<T> {
+    let lastErr: unknown;
+    for (let attempt = 1; attempt <= 3; attempt++) {
+      try {
+        const raw = await fn();
+        return parse(raw);
+      } catch (err) {
+        lastErr = err;
+        console.warn(`[VERDICT] ${agentName} parse attempt ${attempt}/3 failed:`, err instanceof Error ? err.message : String(err));
+        if (attempt < 3) {
+          await new Promise((r) => setTimeout(r, 300 * attempt));
+        }
+      }
+    }
+    throw lastErr;
+  }
+
   // ── Step 1: Risk + Safety in TRUE PARALLEL, independent contexts ──────────
-  let riskOutput: RiskAgentOutput;
-  let safetyOutput: SafetyAgentOutput;
-
-  const [riskRaw, safetyRaw] = await Promise.all([
-    chatFn([
-      { role: "system", content: RISK_SYSTEM_PROMPT },
-      { role: "user", content: buildRiskUserMessage(changeForAgents) },
-    ], { maxTokens: 1200 }),
-    chatFn([
-      { role: "system", content: SAFETY_SYSTEM_PROMPT },
-      { role: "user", content: buildSafetyUserMessage(changeForAgents) },
-    ], { maxTokens: 1200 }),
+  const [riskOutput, safetyOutput] = await Promise.all([
+    withRetry(
+      () => chatFn([
+        { role: "system", content: RISK_SYSTEM_PROMPT },
+        { role: "user", content: buildRiskUserMessage(changeForAgents) },
+      ], { maxTokens: 1200 }),
+      parseRiskOutput,
+      "RiskAgent"
+    ),
+    withRetry(
+      () => chatFn([
+        { role: "system", content: SAFETY_SYSTEM_PROMPT },
+        { role: "user", content: buildSafetyUserMessage(changeForAgents) },
+      ], { maxTokens: 1200 }),
+      parseSafetyOutput,
+      "SafetyAgent"
+    ),
   ]);
-
-  riskOutput = parseRiskOutput(riskRaw);
-  safetyOutput = parseSafetyOutput(safetyRaw);
 
   // ── Step 2: Validation Engine (static/deterministic, no fabrication) ──────
   const validationOutput = runValidationEngine({
@@ -93,12 +118,21 @@ export async function runAgentTrial(
   });
 
   // ── Step 3: Judge synthesizes all three outputs ───────────────────────────
-  const judgeRaw = await chatFn([
-    { role: "system", content: buildJudgeSystemPrompt() },
-    { role: "user", content: buildJudgeUserMessage(riskOutput, safetyOutput, validationOutput, req.title) },
-  ], { maxTokens: 800 });
+  const judgeOutput = await withRetry(
+    () => chatFn([
+      { role: "system", content: buildJudgeSystemPrompt() },
+      { role: "user", content: buildJudgeUserMessage(riskOutput, safetyOutput, validationOutput, req.title) },
+    ], { maxTokens: 800 }),
+    parseJudgeOutput,
+    "JudgeAgent"
+  );
 
-  const judgeOutput = parseJudgeOutput(judgeRaw);
+  // ── Agent disagreement detection ─────────────────────────────────────────
+  // Disagreement = Risk found ≥1 critical/high AND Safety found ≥2 strong claims,
+  // or Judge verdict diverges significantly from what Risk severity implies.
+  const highSeverityRisks = riskOutput.risks.filter((r) => r.severity === "critical" || r.severity === "high").length;
+  const safetyClaimCount = safetyOutput.evidence.length;
+  const agentDisagreement = highSeverityRisks >= 1 && safetyClaimCount >= 2;
 
   return {
     riskAgent: riskOutput,
@@ -108,6 +142,7 @@ export async function runAgentTrial(
     provider: providerName,
     aiEnhanced: true,
     parallelExecuted: true,
+    agentDisagreement,
   };
 }
 

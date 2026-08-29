@@ -272,5 +272,6 @@ export function mergeAgentTrial(
     aiEnhanced: true,
     aiProvider: provider,
     saferAlternative: trial.judgeAgent.saferAlternative,
+    agentDisagreement: trial.agentDisagreement ?? false,
   };
 }

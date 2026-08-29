@@ -12,10 +12,6 @@ const NAV_ITEMS: NavItem[] = [
   { label: "Settings", href: "/settings", icon: "settings" },
 ];
 
-const BOTTOM_NAV_ITEMS: NavItem[] = [
-  { label: "Docs", href: "/docs", icon: "description" },
-  { label: "Support", href: "/support", icon: "help" },
-];
 
 export default function AppSidebar() {
   const pathname = usePathname();
@@ -111,22 +107,12 @@ export default function AppSidebar() {
         })}
       </ul>
 
-      {/* Bottom navigation */}
-      <ul className="mt-auto px-sm flex flex-col gap-xs pt-lg border-t border-outline-variant/30">
-        {BOTTOM_NAV_ITEMS.map((item) => (
-          <li key={item.href}>
-            <Link
-              href={item.href}
-              className="flex items-center gap-md px-md py-2 rounded text-on-surface-variant hover:text-on-surface hover:bg-surface-container-highest transition-colors duration-200 text-body-md active:scale-95"
-            >
-              <span className="material-symbols-outlined text-[20px]">
-                {item.icon}
-              </span>
-              {item.label}
-            </Link>
-          </li>
-        ))}
-      </ul>
+      {/* Bottom — version stamp */}
+      <div className="mt-auto px-md pt-lg border-t border-outline-variant/30">
+        <p className="text-label-mono text-on-surface-variant" style={{ fontSize: "10px" }}>
+          VERDICT v2.0 · Static &amp; Semantic Analysis
+        </p>
+      </div>
     </nav>
   );
 }

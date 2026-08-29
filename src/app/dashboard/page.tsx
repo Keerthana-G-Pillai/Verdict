@@ -7,7 +7,6 @@ import MetricCard from "@/components/dashboard/MetricCard";
 import ActivityTimeline from "@/components/dashboard/ActivityTimeline";
 import AnalysisTable from "@/components/dashboard/AnalysisTable";
 import { useAnalysisStore } from "@/store/analysis-store";
-import { ACTIVITY_EVENTS, RECENT_ANALYSES } from "@/lib/seed-data";
 import type { ActivityEvent, AnalysisRecord } from "@/types";
 
 const CHANGE_TYPE_ICONS: Record<string, string> = {
@@ -60,9 +59,9 @@ export default function DashboardPage() {
     return Math.round((safe / total) * 100 * 10) / 10;
   }, [completedAnalyses]);
 
-  // Recent analyses for the table — up to 6, newest first; seed data when empty
+  // Recent analyses for the table — up to 6, newest first; empty array when no real data
   const recentAnalyses = useMemo((): AnalysisRecord[] => {
-    if (completedAnalyses.length === 0) return RECENT_ANALYSES;
+    if (completedAnalyses.length === 0) return [];
     return completedAnalyses
       .sort((a, b) => new Date(b.analyzedAt).getTime() - new Date(a.analyzedAt).getTime())
       .slice(0, 6)
@@ -77,10 +76,10 @@ export default function DashboardPage() {
       }));
   }, [completedAnalyses]);
 
-  // Activity feed — merge analyses + simulations; seed data when empty
+  // Activity feed — merge analyses + simulations; empty array when no real data
   const activityEvents = useMemo((): ActivityEvent[] => {
     if (completedAnalyses.length === 0 && completedSimulations.length === 0) {
-      return ACTIVITY_EVENTS;
+      return [];
     }
 
     const events: ActivityEvent[] = [];

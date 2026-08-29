@@ -77,4 +77,6 @@ export interface AgentTrialResult {
   provider: string;
   aiEnhanced: boolean;
   parallelExecuted: boolean;  // true if Risk + Safety ran in true parallel
+  // true when Risk ≥1 critical/high AND Safety ≥2 strong claims — UI shows disagreement banner
+  agentDisagreement?: boolean;
 }

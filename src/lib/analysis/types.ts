@@ -139,6 +139,8 @@ export interface AnalysisResult {
   aiProvider?: string;
   // Safer alternative from the Judge agent (may be null if not applicable).
   saferAlternative?: string | null;
+  // true when Risk ≥1 critical/high AND Safety ≥2 strong claims — UI shows disagreement banner.
+  agentDisagreement?: boolean;
 }
 
 // ── Persisted memory record ──────────────────────────────────

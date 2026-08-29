@@ -1,3 +1,6 @@
+"use client";
+
+import { useState } from "react";
 import type { VerdictOutcome } from "@/lib/analysis/types";
 
 interface VerdictCardProps {
@@ -203,21 +206,51 @@ export default function VerdictCard({
 
         {/* Safer Alternative — from Judge agent */}
         {saferAlternative && (
-          <div
-            className="flex gap-3 px-4 py-3 rounded mt-2"
-            style={{ backgroundColor: "rgba(0,240,255,0.04)", border: "1px solid rgba(0,240,255,0.15)" }}
-          >
-            <span className="material-symbols-outlined text-primary-container shrink-0 mt-0.5" style={{ fontSize: "16px" }}>
-              tips_and_updates
-            </span>
-            <div>
-              <p className="text-label-mono text-primary-container uppercase tracking-wider mb-1" style={{ fontSize: "10px" }}>
-                Safer Alternative
-              </p>
-              <p className="text-code-sm text-on-surface-variant">{saferAlternative}</p>
-            </div>
-          </div>
+          <SaferAlternativeCard text={saferAlternative} />
         )}
+      </div>
+    </div>
+  );
+}
+
+// ── Safer Alternative subcomponent with copy button ──────────
+
+function SaferAlternativeCard({ text }: { text: string }) {
+  const [copied, setCopied] = useState(false);
+
+  const handleCopy = () => {
+    navigator.clipboard.writeText(text).then(() => {
+      setCopied(true);
+      setTimeout(() => setCopied(false), 2000);
+    });
+  };
+
+  return (
+    <div
+      className="flex gap-3 px-4 py-3 rounded mt-2"
+      style={{ backgroundColor: "rgba(0,240,255,0.04)", border: "1px solid rgba(0,240,255,0.15)" }}
+    >
+      <span className="material-symbols-outlined text-primary-container shrink-0 mt-0.5" style={{ fontSize: "16px" }}>
+        tips_and_updates
+      </span>
+      <div className="flex-1 min-w-0">
+        <div className="flex items-center justify-between gap-2 mb-1">
+          <p className="text-label-mono text-primary-container uppercase tracking-wider" style={{ fontSize: "10px" }}>
+            Safer Alternative · AI-Generated
+          </p>
+          <button
+            onClick={handleCopy}
+            className="inline-flex items-center gap-1 text-label-mono transition-colors shrink-0"
+            style={{ color: copied ? "#6ffbbe" : "#849495", fontSize: "10px" }}
+            title="Copy to clipboard"
+          >
+            <span className="material-symbols-outlined" style={{ fontSize: "13px" }}>
+              {copied ? "check" : "content_copy"}
+            </span>
+            {copied ? "Copied" : "Copy"}
+          </button>
+        </div>
+        <p className="text-code-sm text-on-surface-variant">{text}</p>
       </div>
     </div>
   );
