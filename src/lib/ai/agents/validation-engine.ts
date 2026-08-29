@@ -82,7 +82,7 @@ function runStaticChecks(content: string, language?: string): StaticCheckResult 
 
   const summary = `Analyzed ${lineCount} lines. Scope: ${scopeDesc}.${
     warnings.length > 0 ? ` ${warnings.length} pattern${warnings.length > 1 ? "s" : ""} flagged for review.` : " No critical patterns flagged."
-  } Note: This is static analysis — no code was executed. Real execution evidence is unavailable.`;
+  } Note: This is static and semantic analysis only — no code was executed.`;
 
   return { summary, warnings };
 }

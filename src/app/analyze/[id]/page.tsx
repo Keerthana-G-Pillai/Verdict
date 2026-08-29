@@ -201,8 +201,11 @@ export default function AnalysisResultPage() {
                 {input.language && (
                   <span className="text-label-mono text-on-surface-variant">{input.language}</span>
                 )}
-                <span className="text-label-mono text-on-surface-variant">
-                  {new Date(input.createdAt).toLocaleString()}
+                <span className="text-label-mono text-on-surface-variant" suppressHydrationWarning>
+                  {new Date(input.createdAt).toLocaleString("en-US", {
+                    month: "short", day: "numeric", year: "numeric",
+                    hour: "2-digit", minute: "2-digit",
+                  })}
                 </span>
               </div>
             </div>
