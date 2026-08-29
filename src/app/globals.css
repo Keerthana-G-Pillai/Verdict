@@ -1,0 +1,349 @@
+@import "tailwindcss";
+
+/* ============================================================
+   VERDICT DESIGN SYSTEM — Tailwind v4 @theme configuration
+   Source of truth: stitch_verdict_change_intelligence_platform/verdict_design_system/DESIGN.md
+   ============================================================ */
+
+@theme {
+  /* ------ Colors ------ */
+  --color-background:               #131314;
+  --color-surface:                  #131314;
+  --color-surface-dim:              #131314;
+  --color-surface-bright:           #3a393a;
+  --color-surface-container-lowest: #0e0e0f;
+  --color-surface-container-low:    #1c1b1c;
+  --color-surface-container:        #201f20;
+  --color-surface-container-high:   #2a2a2b;
+  --color-surface-container-highest:#353436;
+  --color-surface-variant:          #353436;
+  --color-surface-tint:             #00dbe9;
+
+  --color-on-surface:               #e5e2e3;
+  --color-on-surface-variant:       #b9cacb;
+  --color-on-background:            #e5e2e3;
+
+  --color-inverse-surface:          #e5e2e3;
+  --color-inverse-on-surface:       #313031;
+
+  --color-outline:                  #849495;
+  --color-outline-variant:          #3b494b;
+
+  /* Primary — Electric Cyan */
+  --color-primary:                  #dbfcff;
+  --color-on-primary:               #00363a;
+  --color-primary-container:        #00f0ff;
+  --color-on-primary-container:     #006970;
+  --color-primary-fixed:            #7df4ff;
+  --color-primary-fixed-dim:        #00dbe9;
+  --color-on-primary-fixed:         #002022;
+  --color-on-primary-fixed-variant: #004f54;
+  --color-inverse-primary:          #006970;
+
+  /* Secondary — Emerald */
+  --color-secondary:                #4edea3;
+  --color-on-secondary:             #003824;
+  --color-secondary-container:      #00a572;
+  --color-on-secondary-container:   #00311f;
+  --color-secondary-fixed:          #6ffbbe;
+  --color-secondary-fixed-dim:      #4edea3;
+  --color-on-secondary-fixed:       #002113;
+  --color-on-secondary-fixed-variant:#005236;
+
+  /* Tertiary — Amber */
+  --color-tertiary:                 #fff3ea;
+  --color-on-tertiary:              #472a00;
+  --color-tertiary-container:       #ffd19c;
+  --color-on-tertiary-container:    #855300;
+  --color-tertiary-fixed:           #ffddb8;
+  --color-tertiary-fixed-dim:       #ffb95f;
+  --color-on-tertiary-fixed:        #2a1700;
+  --color-on-tertiary-fixed-variant:#653e00;
+
+  /* Error — Rose */
+  --color-error:                    #ffb4ab;
+  --color-on-error:                 #690005;
+  --color-error-container:          #93000a;
+  --color-on-error-container:       #ffdad6;
+
+  /* ------ Fonts ------ */
+  --font-sans:      var(--font-geist-sans);
+  --font-mono:      var(--font-jetbrains-mono);
+
+  /* ------ Border Radius ------ */
+  --radius-DEFAULT: 0.25rem;   /* 4px — tags, chips */
+  --radius-lg:      0.5rem;    /* 8px — cards, inputs */
+  --radius-xl:      0.75rem;   /* 12px — modals */
+  --radius-2xl:     1rem;      /* 16px — large panels */
+  --radius-full:    9999px;    /* Status dots only */
+
+  /* ------ Spacing (4px baseline) ------ */
+  --spacing-xs:              4px;
+  --spacing-sm:              8px;
+  --spacing-md:              16px;
+  --spacing-lg:              24px;
+  --spacing-xl:              40px;
+  --spacing-gutter:          20px;
+  --spacing-margin-mobile:   16px;
+  --spacing-margin-desktop:  32px;
+
+  /* ------ Sidebar ------ */
+  --sidebar-width: 256px;
+
+  /* ------ Animations ------ */
+  --animate-fade-in-up: fadeInUp 0.8s ease-out forwards;
+  --animate-flow-right: flowRight 3s linear infinite;
+
+  @keyframes fadeInUp {
+    0%   { opacity: 0; transform: translateY(20px); }
+    100% { opacity: 1; transform: translateY(0); }
+  }
+
+  @keyframes flowRight {
+    0%   { transform: translateX(-100%); }
+    100% { transform: translateX(300%); }
+  }
+}
+
+/* ============================================================
+   GLOBAL BASE
+   ============================================================ */
+
+html {
+  color-scheme: dark;
+  scroll-behavior: smooth;
+}
+
+body {
+  background-color: var(--color-background);
+  color: var(--color-on-surface);
+  font-family: var(--font-sans), system-ui, sans-serif;
+  font-size: 14px;
+  line-height: 1.6;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  overflow-x: hidden;
+}
+
+::selection {
+  background-color: var(--color-primary-container);
+  color: var(--color-on-primary-container);
+}
+
+/* ============================================================
+   DESIGN SYSTEM UTILITY CLASSES
+   ============================================================ */
+
+/* 24px grid blueprint background */
+.grid-bg {
+  background-image:
+    linear-gradient(to right,  rgba(255,255,255,0.02) 1px, transparent 1px),
+    linear-gradient(to bottom, rgba(255,255,255,0.02) 1px, transparent 1px);
+  background-size: 24px 24px;
+}
+
+/* Glass panel — used on landing page feature cards */
+.glass-panel {
+  background: rgba(20, 20, 22, 0.7);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid var(--color-surface-variant);
+}
+
+/* Glow border — AI intelligence cards */
+.glow-border {
+  position: relative;
+}
+.glow-border::before {
+  content: '';
+  position: absolute;
+  top: -1px; left: -1px; right: -1px; bottom: -1px;
+  background: linear-gradient(to bottom right, var(--color-primary-container), transparent);
+  z-index: -1;
+  border-radius: inherit;
+  opacity: 0.5;
+  pointer-events: none;
+}
+
+/* AI glow box-shadow */
+.ai-glow {
+  box-shadow: 0 0 12px rgba(0, 240, 255, 0.1);
+}
+
+.ai-glow-strong {
+  box-shadow: 0 0 20px rgba(0, 240, 255, 0.25);
+}
+
+/* Scroll reveal — applies via IntersectionObserver in JS */
+.reveal-on-scroll {
+  opacity: 0;
+  transform: translateY(30px);
+  transition: opacity 0.8s ease-out, transform 0.8s ease-out;
+}
+.reveal-on-scroll.is-visible {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+/* Material Symbols — weight tuning for sharp icons */
+.material-symbols-outlined {
+  font-variation-settings: 'FILL' 0, 'wght' 300, 'GRAD' 0, 'opsz' 20;
+  font-family: 'Material Symbols Outlined';
+  font-style: normal;
+  line-height: 1;
+  display: inline-block;
+  white-space: nowrap;
+  word-wrap: normal;
+  direction: ltr;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* Custom scrollbar — thin technical style */
+.custom-scrollbar::-webkit-scrollbar {
+  width: 4px;
+  height: 4px;
+}
+.custom-scrollbar::-webkit-scrollbar-track {
+  background: transparent;
+}
+.custom-scrollbar::-webkit-scrollbar-thumb {
+  background: #2d2d30;
+  border-radius: 4px;
+}
+.custom-scrollbar::-webkit-scrollbar-thumb:hover {
+  background: var(--color-outline-variant);
+}
+
+/* ============================================================
+   TYPOGRAPHY SCALE (matching Stitch exactly)
+   ============================================================ */
+
+.text-display-lg {
+  font-size: 48px;
+  line-height: 56px;
+  letter-spacing: -0.02em;
+  font-weight: 600;
+}
+.text-headline-lg {
+  font-size: 32px;
+  line-height: 40px;
+  letter-spacing: -0.02em;
+  font-weight: 600;
+}
+.text-headline-md {
+  font-size: 24px;
+  line-height: 32px;
+  letter-spacing: -0.01em;
+  font-weight: 500;
+}
+.text-body-lg {
+  font-size: 16px;
+  line-height: 24px;
+  letter-spacing: 0em;
+  font-weight: 400;
+}
+.text-body-md {
+  font-size: 14px;
+  line-height: 20px;
+  letter-spacing: 0em;
+  font-weight: 400;
+}
+.text-label-mono {
+  font-family: var(--font-mono), monospace;
+  font-size: 12px;
+  line-height: 16px;
+  letter-spacing: 0.02em;
+  font-weight: 500;
+}
+.text-code-sm {
+  font-family: var(--font-mono), monospace;
+  font-size: 13px;
+  line-height: 20px;
+  letter-spacing: 0em;
+  font-weight: 400;
+}
+
+/* ============================================================
+   COMPONENT BASE STYLES
+   ============================================================ */
+
+/* Card — Level 1 surface */
+.card {
+  background: #141416;
+  border: 1px solid #2d2d30;
+  border-radius: var(--radius-lg);
+}
+
+/* Intelligence card — cyan top accent */
+.intelligence-card {
+  background: #141416;
+  border: 1px solid #2d2d30;
+  border-radius: var(--radius-lg);
+  position: relative;
+  overflow: hidden;
+}
+.intelligence-card::before {
+  content: '';
+  position: absolute;
+  top: 0; left: 0; right: 0;
+  height: 2px;
+  background: var(--color-primary-container);
+  opacity: 0.5;
+  transition: opacity 0.2s ease;
+}
+.intelligence-card:hover::before {
+  opacity: 1;
+}
+
+/* Sidebar active state */
+.sidebar-item-active {
+  border-left: 2px solid var(--color-primary-container);
+  color: var(--color-primary);
+  background: var(--color-surface-container-high);
+  font-weight: 700;
+}
+
+/* Input base */
+.input-base {
+  background: #0a0a0b;
+  border: 1px solid #2d2d30;
+  border-radius: var(--radius-lg);
+  color: var(--color-on-surface);
+  font-size: 14px;
+  transition: border-color 0.2s ease;
+  outline: none;
+}
+.input-base:focus {
+  border-color: var(--color-primary-container);
+}
+.input-base::placeholder {
+  color: var(--color-on-surface-variant);
+}
+
+/* Progress bar track */
+.progress-track {
+  width: 100%;
+  height: 4px;
+  background: var(--color-surface-variant);
+  border-radius: 9999px;
+  overflow: hidden;
+}
+
+/* ============================================================
+   ANIMATION UTILITIES
+   ============================================================ */
+
+.animate-fade-in-up {
+  animation: fadeInUp 0.8s ease-out forwards;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .animate-fade-in-up,
+  .reveal-on-scroll,
+  .reveal-on-scroll.is-visible {
+    animation: none !important;
+    transition: none !important;
+    opacity: 1 !important;
+    transform: none !important;
+  }
+}
