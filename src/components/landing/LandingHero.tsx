@@ -61,11 +61,11 @@ export default function LandingHero() {
       {/* ── HERO ── */}
       <section className="relative min-h-screen flex items-center justify-center pt-16 overflow-hidden">
 
-        {/* ── Base: deep teal fills the whole section including nav area */}
+        {/* ── Base: solid dark background */}
         <div
           className="absolute inset-0 z-0"
           style={{
-            background: "radial-gradient(ellipse 130% 90% at 50% 10%, #0c4049 0%, #082830 28%, #051620 55%, #040c14 80%, #030810 100%)",
+            background: "#040c14",
           }}
         />
 
