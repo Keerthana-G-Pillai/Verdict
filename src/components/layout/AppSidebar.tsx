@@ -6,6 +6,7 @@ import { useState } from "react";
 import type { NavItem } from "@/types";
 import { useAuth } from "@/lib/auth/auth-context";
 import AuthModal from "@/components/auth/AuthModal";
+import DemoModeIndicator from "@/components/demo/DemoModeIndicator";
 
 const NAV_ITEMS: NavItem[] = [
   { label: "Dashboard", href: "/dashboard", icon: "dashboard" },
@@ -95,6 +96,9 @@ export default function AppSidebar({ onClose }: AppSidebarProps) {
             );
           })}
         </ul>
+
+        {/* Demo Mode indicator — only visible when active */}
+        <DemoModeIndicator />
 
         {/* Bottom — Auth + Docs + version */}
         <div className="mt-auto px-md pt-lg border-t border-outline-variant/30 flex flex-col gap-xs">

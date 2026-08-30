@@ -5,10 +5,13 @@ import { useRouter } from "next/navigation";
 import Link from "next/link";
 import AppShell from "@/components/layout/AppShell";
 import ChangeTypeSelector from "@/components/analysis/ChangeTypeSelector";
+import DemoSimScenarioSelector from "@/components/demo/DemoSimScenarioSelector";
 import type { ChangeType } from "@/lib/analysis/types";
 import type { SimulationChange, SimulationInput } from "@/lib/simulation/types";
+import type { DemoSimulationScenario } from "@/lib/demo-scenarios";
 import { nanoid } from "@/lib/analysis/nanoid";
 import { useAnalysisStore } from "@/store/analysis-store";
+import { useDemoStore } from "@/store/demo-store";
 
 interface ChangePanel {
   id: "a" | "b";
@@ -143,11 +146,30 @@ function ChangePanelForm({
 export default function SimulationsPage() {
   const router = useRouter();
   const saveSimulation = useAnalysisStore((s) => s.saveSimulation);
+  const demoActive = useDemoStore((s) => s.active);
 
   const [panelA, setPanelA] = useState<ChangePanel>(DEFAULT_PANEL("a"));
   const [panelB, setPanelB] = useState<ChangePanel>(DEFAULT_PANEL("b"));
   const [errors, setErrors] = useState<{ a?: string; b?: string }>({});
   const [loading, setLoading] = useState(false);
+
+  const handleLoadSimScenario = useCallback((scenario: DemoSimulationScenario) => {
+    setPanelA((p) => ({
+      ...p,
+      title: scenario.changeA.title,
+      changeType: scenario.changeA.changeType,
+      content: scenario.changeA.content,
+      description: scenario.changeA.description ?? "",
+    }));
+    setPanelB((p) => ({
+      ...p,
+      title: scenario.changeB.title,
+      changeType: scenario.changeB.changeType,
+      content: scenario.changeB.content,
+      description: scenario.changeB.description ?? "",
+    }));
+    setErrors({});
+  }, []);
 
   const handleSubmit = useCallback(async () => {
     const newErrors: typeof errors = {};
@@ -226,6 +248,13 @@ export default function SimulationsPage() {
             Compare two independent changes before they collide. VERDICT detects semantic conflicts that Git cannot.
           </p>
         </header>
+
+        {/* Demo simulation scenario selector */}
+        {demoActive && (
+          <div className="mb-xl">
+            <DemoSimScenarioSelector onLoadScenario={handleLoadSimScenario} />
+          </div>
+        )}
 
         {/* Two-panel input grid */}
         <div className="grid grid-cols-1 xl:grid-cols-2 gap-lg mb-xl items-start">

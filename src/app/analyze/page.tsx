@@ -5,9 +5,12 @@ import { useRouter } from "next/navigation";
 import Link from "next/link";
 import AppShell from "@/components/layout/AppShell";
 import ChangeTypeSelector, { CHANGE_TYPES } from "@/components/analysis/ChangeTypeSelector";
+import DemoScenarioSelector from "@/components/demo/DemoScenarioSelector";
 import type { ChangeType, AnalysisInput } from "@/lib/analysis/types";
+import type { DemoScenario } from "@/lib/demo-scenarios";
 import { nanoid } from "@/lib/analysis/nanoid";
 import { useAnalysisStore } from "@/store/analysis-store";
+import { useDemoStore } from "@/store/demo-store";
 
 const LANGUAGES = [
   "TypeScript", "JavaScript", "Python", "Java", "Go", "Rust", "C#",
@@ -17,6 +20,7 @@ const LANGUAGES = [
 function AnalyzeInputInner() {
   const router = useRouter();
   const saveAnalysis = useAnalysisStore((s) => s.saveAnalysis);
+  const demoActive = useDemoStore((s) => s.active);
 
   const [changeType, setChangeType] = useState<ChangeType>("code");
   const [title, setTitle] = useState("");
@@ -27,8 +31,32 @@ function AnalyzeInputInner() {
   const [fileContext, setFileContext] = useState("");
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
+  // Track whether current content was loaded from a demo scenario
+  const [demoScenarioId, setDemoScenarioId] = useState<string | null>(null);
 
   const currentTypeConfig = CHANGE_TYPES.find((t) => t.id === changeType)!;
+
+  // When user changes the type, clear the loaded scenario indicator
+  const handleChangeType = useCallback((type: ChangeType) => {
+    setChangeType(type);
+    setDemoScenarioId(null);
+  }, []);
+
+  // Called by DemoScenarioSelector — fills form fields only, never submits
+  const handleLoadScenario = useCallback((scenario: DemoScenario) => {
+    setTitle(scenario.inputTitle);
+    setContent(scenario.content);
+    setLanguage(scenario.language ?? "");
+    setProjectContext(scenario.projectContext ?? "");
+    setFileContext(scenario.fileContext ?? "");
+    setDescription(scenario.additionalContext ?? "");
+    setDemoScenarioId(scenario.id);
+    setError("");
+    // Scroll to form content
+    setTimeout(() => {
+      document.getElementById("analyze-content-area")?.scrollIntoView({ behavior: "smooth", block: "center" });
+    }, 100);
+  }, []);
 
   const handleSubmit = useCallback(async () => {
     if (!content.trim() || content.trim().length < 10) {
@@ -57,10 +85,12 @@ function AnalyzeInputInner() {
       riskScore: 0, confidence: 0, criticalCount: 0, highCount: 0, mediumCount: 0, lowCount: 0,
       verdict: "approved", verdictRationale: "", conditions: [], recommendations: [],
       analyzedAt: "", analyzerVersion: "", executionMs: 0,
+      // Mark demo-sourced analyses for internal transparency
+      ...(demoScenarioId ? { demoScenarioId } : {}),
     } as import("@/lib/analysis/types").AnalysisResult);
 
     router.push(`/analyze/${input.id}`);
-  }, [changeType, content, description, fileContext, language, projectContext, title, currentTypeConfig, saveAnalysis, router]);
+  }, [changeType, content, description, fileContext, language, projectContext, title, currentTypeConfig, saveAnalysis, router, demoScenarioId]);
 
   return (
     <AppShell>
@@ -85,8 +115,37 @@ function AnalyzeInputInner() {
           {/* Change type selector */}
           <div>
             <label className="block text-label-mono text-on-surface-variant uppercase tracking-wider mb-sm">Change Type</label>
-            <ChangeTypeSelector selected={changeType} onChange={setChangeType} />
+            <ChangeTypeSelector selected={changeType} onChange={handleChangeType} />
           </div>
+
+          {/* Demo scenario selector — only visible when demo mode is active */}
+          {demoActive && (
+            <DemoScenarioSelector
+              changeType={changeType}
+              onLoadScenario={handleLoadScenario}
+            />
+          )}
+
+          {/* Loaded scenario badge */}
+          {demoScenarioId && (
+            <div
+              style={{
+                display: "flex",
+                alignItems: "center",
+                gap: "8px",
+                padding: "8px 12px",
+                borderRadius: "4px",
+                border: "1px solid rgba(0,240,255,0.2)",
+                backgroundColor: "rgba(0,240,255,0.04)",
+              }}
+            >
+              <span className="material-symbols-outlined" style={{ fontSize: "13px", color: "#00f0ff" }}>check_circle</span>
+              <span style={{ fontFamily: "var(--font-mono)", fontSize: "11px", color: "#849495", letterSpacing: "0.04em" }}>
+                Demo scenario loaded — edit freely, then click{" "}
+                <span style={{ color: "#b9cacb" }}>Run VERDICT</span> to generate a live analysis
+              </span>
+            </div>
+          )}
 
           {/* Title */}
           <div>
@@ -138,7 +197,7 @@ function AnalyzeInputInner() {
           </div>
 
           {/* Main content */}
-          <div>
+          <div id="analyze-content-area">
             <div className="flex items-center justify-between mb-sm">
               <label className="block text-label-mono text-on-surface-variant uppercase tracking-wider">
                 {currentTypeConfig.contentLabel} <span className="text-error ml-1">*</span>
@@ -149,7 +208,7 @@ function AnalyzeInputInner() {
             </div>
             <textarea
               value={content}
-              onChange={(e) => { setContent(e.target.value); if (error) setError(""); }}
+              onChange={(e) => { setContent(e.target.value); if (error) setError(""); setDemoScenarioId(null); }}
               placeholder={currentTypeConfig.placeholder}
               rows={changeType === "decision" ? 8 : 14}
               className={`input-base w-full px-4 py-3 resize-none text-code-sm leading-relaxed ${error ? "border-error" : ""}`}
