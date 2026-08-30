@@ -21,19 +21,11 @@ export default function LandingNav() {
 
   return (
     <>
-      {/* Top accent bar */}
-      <div
-        className="fixed top-0 left-0 w-full z-50 h-[2px] pointer-events-none"
-        style={{ background: "linear-gradient(to right, transparent 0%, #007a8a 15%, #00c8dc 50%, #007a8a 85%, transparent 100%)" }}
-      />
-
       <nav
         className="fixed top-0 left-0 w-full z-50 flex justify-between items-center h-16 px-lg"
         style={{
-          backgroundColor: "rgba(5,16,20,0.92)",
-          backdropFilter: "blur(20px)",
-          borderBottom: "1px solid rgba(0,180,200,0.15)",
-          marginTop: "2px",
+          backgroundColor: "transparent",
+          borderBottom: "1px solid rgba(0,180,200,0.12)",
         }}
       >
         {/* Logo — clicking goes home */}
