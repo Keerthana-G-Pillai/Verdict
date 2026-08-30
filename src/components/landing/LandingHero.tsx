@@ -61,11 +61,11 @@ export default function LandingHero() {
       {/* ── HERO ── */}
       <section className="relative min-h-screen flex items-center justify-center pt-16 overflow-hidden">
 
-        {/* ── Base: solid dark background */}
+        {/* ── Base: matches page background */}
         <div
           className="absolute inset-0 z-0"
           style={{
-            background: "#040c14",
+            background: "#131314",
           }}
         />
 
@@ -120,7 +120,7 @@ export default function LandingHero() {
         <div
           className="absolute inset-0 z-[3] pointer-events-none"
           style={{
-            background: "linear-gradient(to bottom, transparent 0%, transparent 55%, rgba(4,12,20,0.65) 80%, #040c14 100%)",
+            background: "linear-gradient(to bottom, transparent 0%, transparent 55%, rgba(19,19,20,0.65) 80%, #131314 100%)",
           }}
         />
 
