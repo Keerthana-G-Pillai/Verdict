@@ -264,20 +264,6 @@ export default function SimulationsPage() {
             error={errors.a}
           />
 
-          {/* Connector — desktop only */}
-          <div className="hidden xl:flex items-center justify-center absolute left-1/2 -translate-x-1/2 self-center z-10 pointer-events-none" style={{ top: "50%" }}>
-            <div className="flex flex-col items-center gap-2">
-              <div className="w-[1px] h-8" style={{ background: "linear-gradient(to bottom, transparent, #00f0ff)" }} />
-              <div
-                className="w-10 h-10 rounded-full flex items-center justify-center"
-                style={{ backgroundColor: "rgba(0,240,255,0.08)", border: "1px solid rgba(0,240,255,0.3)", boxShadow: "0 0 16px rgba(0,240,255,0.2)" }}
-              >
-                <span className="material-symbols-outlined text-primary-container text-[18px]">gavel</span>
-              </div>
-              <div className="w-[1px] h-8" style={{ background: "linear-gradient(to bottom, #00f0ff, transparent)" }} />
-            </div>
-          </div>
-
           <ChangePanelForm
             panel={panelB}
             onChange={(u) => { setPanelB((p) => ({ ...p, ...u })); setErrors((e) => ({ ...e, b: undefined })); }}
