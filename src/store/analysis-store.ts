@@ -50,9 +50,17 @@ export const useAnalysisStore = create<VerdictStore>()(
 
       saveToMemory: (result) => {
         if (get().memory.some((m) => m.id === result.id)) return;
+        // Build a descriptive fallback title when the user left the field blank.
+        // Priority: explicit title → first ~50 chars of description → first ~50 chars of content.
+        const fallbackSource = result.input.description?.trim() || result.input.content?.trim() || "";
+        const fallbackSnippet = fallbackSource.slice(0, 50).replace(/\s+/g, " ").trim();
+        const fallbackSuffix = fallbackSnippet.length === 50 ? "…" : "";
+        const fallbackTitle = fallbackSnippet
+          ? `${fallbackSnippet}${fallbackSuffix}`
+          : `${result.input.changeType} analysis`;
         const record: MemoryRecord = {
           id: result.id,
-          title: result.input.title || `${result.input.changeType} analysis`,
+          title: result.input.title || fallbackTitle,
           changeType: result.input.changeType,
           riskScore: result.riskScore,
           confidence: result.confidence,

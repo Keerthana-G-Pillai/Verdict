@@ -106,7 +106,27 @@ export default function MemoryPage() {
     if (recordType === "simulation") return [];
     const q = search.toLowerCase().trim();
     return memory.filter((r) => {
-      if (q && !r.title.toLowerCase().includes(q) && !r.verdictRationale.toLowerCase().includes(q) && !r.changeType.toLowerCase().includes(q)) return false;
+      if (q) {
+        const inp = r.result?.input;
+        const ctx = r.result?.context;
+        const findingText = [
+          ...(r.result?.riskFindings ?? []),
+          ...(r.result?.safetyFindings ?? []),
+        ].map((f) => `${f.title} ${f.description}`).join(" ");
+        const haystack = [
+          r.title,
+          r.verdictRationale,
+          r.changeType,
+          inp?.content,
+          inp?.description,
+          inp?.projectContext,
+          inp?.fileContext,
+          ctx?.summary,
+          ctx?.detectedDomain,
+          findingText,
+        ].filter(Boolean).join(" ").toLowerCase();
+        if (!haystack.includes(q)) return false;
+      }
       if (verdictFilter !== "all" && r.verdict !== verdictFilter) return false;
       if (r.riskScore < riskRange.min || r.riskScore > riskRange.max) return false;
       if (domainFilter !== "all" && r.result?.context?.detectedDomain !== domainFilter) return false;
@@ -120,7 +140,26 @@ export default function MemoryPage() {
     if (recordType === "analysis") return [];
     const q = search.toLowerCase().trim();
     return simulationMemory.filter((r) => {
-      if (q && !r.titleA.toLowerCase().includes(q) && !r.titleB.toLowerCase().includes(q) && !r.verdictRationale.toLowerCase().includes(q)) return false;
+      if (q) {
+        const res = r.result;
+        const conflictText = [
+          ...(res?.directConflicts ?? []),
+          ...(res?.semanticConflicts ?? []),
+        ].map((c) => `${c.title} ${c.description} ${c.affectedArea}`).join(" ");
+        const haystack = [
+          r.titleA,
+          r.titleB,
+          r.verdictRationale,
+          res?.input?.changeA?.content,
+          res?.input?.changeA?.description,
+          res?.input?.changeB?.content,
+          res?.input?.changeB?.description,
+          ...(res?.domainsA ?? []),
+          ...(res?.domainsB ?? []),
+          conflictText,
+        ].filter(Boolean).join(" ").toLowerCase();
+        if (!haystack.includes(q)) return false;
+      }
       if (r.integrationRiskScore < riskRange.min || r.integrationRiskScore > riskRange.max) return false;
       if (dateCutoffMs > 0 && new Date(r.savedAt).getTime() < dateCutoffMs) return false;
       return true;
