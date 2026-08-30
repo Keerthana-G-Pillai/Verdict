@@ -203,7 +203,6 @@ VERDICT is transparent about the quality of its evidence:
 | `NOT_EXECUTABLE` | Decision/config change — cannot execute |
 
 VERDICT **never fabricates execution results**. If execution is unavailable, it says so clearly.
-
 ---
 
 ## License
