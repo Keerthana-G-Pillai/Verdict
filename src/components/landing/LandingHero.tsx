@@ -2,7 +2,6 @@
 
 import { useEffect } from "react";
 import Link from "next/link";
-import WebGLShader from "@/components/intelligence/WebGLShader";
 
 const PIPELINE_NODES = [
   { icon: "code", label: "PROPOSED", color: "border-outline-variant", textColor: "text-on-surface-variant", lineColor: "#00f0ff", delay: "0s" },
@@ -61,52 +60,84 @@ export default function LandingHero() {
     <>
       {/* ── HERO ── */}
       <section className="relative min-h-screen flex items-center justify-center pt-16 overflow-hidden">
-        {/* WebGL background */}
-        <div className="absolute inset-0 z-0">
-          <WebGLShader className="absolute inset-0" opacity={0.6} />
-        </div>
 
-        {/* Dot-grid overlay */}
+        {/* ── Deep teal base gradient (matches reference screenshot) */}
         <div
-          className="absolute inset-0 z-[1] pointer-events-none"
+          className="absolute inset-0 z-0"
           style={{
-            backgroundImage: "radial-gradient(circle, rgba(0,240,255,0.12) 1px, transparent 1px)",
-            backgroundSize: "36px 36px",
-            maskImage: "radial-gradient(ellipse 80% 70% at 50% 40%, black 30%, transparent 100%)",
+            background: "radial-gradient(ellipse 110% 80% at 50% 20%, #0a3a3f 0%, #071e24 35%, #060e12 65%, #050a0c 100%)",
           }}
         />
 
-        {/* Large radial cyan glow behind headline */}
+        {/* ── SVG diagonal line-grid (replaces WebGL shader) */}
+        <svg
+          className="absolute inset-0 z-[1] w-full h-full pointer-events-none"
+          aria-hidden="true"
+          preserveAspectRatio="xMidYMid slice"
+        >
+          <defs>
+            {/* Diagonal lines pattern */}
+            <pattern id="diag-lines" x="0" y="0" width="48" height="48" patternUnits="userSpaceOnUse" patternTransform="rotate(30)">
+              <line x1="0" y1="0" x2="0" y2="48" stroke="rgba(0,220,235,0.09)" strokeWidth="0.8" />
+            </pattern>
+            {/* Horizontal lines pattern */}
+            <pattern id="h-lines" x="0" y="0" width="1" height="32" patternUnits="userSpaceOnUse">
+              <line x1="0" y1="0" x2="9999" y2="0" stroke="rgba(0,200,220,0.05)" strokeWidth="0.6" />
+            </pattern>
+            {/* Radial fade mask — lines bright in centre, invisible at edges */}
+            <radialGradient id="line-mask" cx="50%" cy="42%" r="58%">
+              <stop offset="0%" stopColor="white" stopOpacity="1" />
+              <stop offset="55%" stopColor="white" stopOpacity="0.5" />
+              <stop offset="100%" stopColor="white" stopOpacity="0" />
+            </radialGradient>
+            <mask id="fade-mask">
+              <rect width="100%" height="100%" fill="url(#line-mask)" />
+            </mask>
+          </defs>
+          {/* Diagonal lines layer */}
+          <rect width="100%" height="100%" fill="url(#diag-lines)" mask="url(#fade-mask)" />
+          {/* Horizontal lines layer */}
+          <rect width="100%" height="100%" fill="url(#h-lines)" mask="url(#fade-mask)" />
+          {/* Accent diagonal lines — slightly brighter, wider spacing */}
+          <pattern id="diag-accent" x="0" y="0" width="96" height="96" patternUnits="userSpaceOnUse" patternTransform="rotate(-25)">
+            <line x1="0" y1="0" x2="0" y2="96" stroke="rgba(0,240,255,0.06)" strokeWidth="1" />
+          </pattern>
+          <rect width="100%" height="100%" fill="url(#diag-accent)" mask="url(#fade-mask)" />
+        </svg>
+
+        {/* ── Teal radial glow — central bloom behind headline */}
         <div
           className="absolute z-[2] pointer-events-none"
           style={{
-            width: "720px",
-            height: "420px",
+            width: "860px",
+            height: "500px",
             top: "50%",
             left: "50%",
-            transform: "translate(-50%, -52%)",
-            background: "radial-gradient(ellipse at center, rgba(0,240,255,0.13) 0%, rgba(0,240,255,0.04) 45%, transparent 72%)",
-            filter: "blur(2px)",
+            transform: "translate(-50%, -54%)",
+            background: "radial-gradient(ellipse at center, rgba(0,180,200,0.18) 0%, rgba(0,140,160,0.08) 40%, transparent 70%)",
+            filter: "blur(1px)",
           }}
         />
 
-        {/* Horizontal light-beam streak */}
+        {/* ── Corner accent glows */}
+        <div className="absolute top-0 left-0 z-[2] pointer-events-none"
+          style={{ width: "400px", height: "300px", background: "radial-gradient(ellipse at 0% 0%, rgba(0,160,180,0.14) 0%, transparent 65%)" }} />
+        <div className="absolute top-0 right-0 z-[2] pointer-events-none"
+          style={{ width: "400px", height: "300px", background: "radial-gradient(ellipse at 100% 0%, rgba(0,140,160,0.10) 0%, transparent 65%)" }} />
+
+        {/* ── Thin horizontal scan lines — tech feel */}
         <div
-          className="absolute z-[2] pointer-events-none"
+          className="absolute inset-0 z-[2] pointer-events-none"
           style={{
-            width: "100%",
-            height: "1px",
-            top: "46%",
-            left: 0,
-            background: "linear-gradient(to right, transparent 5%, rgba(0,240,255,0.18) 30%, rgba(0,240,255,0.32) 50%, rgba(0,240,255,0.18) 70%, transparent 95%)",
+            backgroundImage: "repeating-linear-gradient(0deg, transparent, transparent 3px, rgba(0,200,220,0.015) 3px, rgba(0,200,220,0.015) 4px)",
           }}
         />
 
-        {/* Overlay gradient — fades shader into content below */}
+        {/* ── Bottom fade to page background */}
         <div
           className="absolute inset-0 z-[3] pointer-events-none"
           style={{
-            background: "linear-gradient(to bottom, transparent 0%, rgba(19,19,20,0.45) 60%, #131314 100%)",
+            background: "linear-gradient(to bottom, transparent 0%, transparent 50%, rgba(5,10,12,0.7) 78%, #050a0c 100%)",
           }}
         />
 

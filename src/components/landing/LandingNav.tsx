@@ -21,37 +21,50 @@ export default function LandingNav() {
 
   return (
     <>
+      {/* Top accent bar */}
+      <div
+        className="fixed top-0 left-0 w-full z-50 h-[2px] pointer-events-none"
+        style={{ background: "linear-gradient(to right, transparent 0%, #007a8a 15%, #00c8dc 50%, #007a8a 85%, transparent 100%)" }}
+      />
+
       <nav
         className="fixed top-0 left-0 w-full z-50 flex justify-between items-center h-16 px-lg"
         style={{
-          backgroundColor: "rgba(13,14,16,0.85)",
-          backdropFilter: "blur(16px)",
-          borderBottom: "1px solid rgba(0,240,255,0.12)",
-          boxShadow: "0 1px 0 rgba(0,240,255,0.06)",
+          backgroundColor: "rgba(5,16,20,0.92)",
+          backdropFilter: "blur(20px)",
+          borderBottom: "1px solid rgba(0,180,200,0.15)",
+          marginTop: "2px",
         }}
       >
         {/* Logo — clicking goes home */}
-        <Link href="/" className="flex items-center gap-sm group">
+        <Link href="/" className="flex items-center gap-3 group">
+          {/* Logo mark with teal border + inner glow */}
           <div
-            className="w-8 h-8 rounded flex items-center justify-center shrink-0 transition-all duration-200"
+            className="w-9 h-9 rounded-md flex items-center justify-center shrink-0 transition-all duration-300 group-hover:scale-105"
             style={{
-              border: "1px solid rgba(0,240,255,0.35)",
-              boxShadow: "0 0 12px rgba(0,240,255,0.2)",
-              backgroundColor: "rgba(0,240,255,0.05)",
+              background: "linear-gradient(135deg, rgba(0,120,140,0.3) 0%, rgba(0,60,75,0.5) 100%)",
+              border: "1px solid rgba(0,200,220,0.4)",
+              boxShadow: "0 0 14px rgba(0,200,220,0.25), inset 0 1px 0 rgba(0,240,255,0.1)",
             }}
           >
             <svg width="20" height="20" viewBox="0 0 20 20" fill="none" aria-hidden="true">
-              <path d="M4 3L10 14L16 3" stroke="#00f0ff" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" />
-              <path d="M7.5 3L10 8L12.5 3" stroke="#00f0ff" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" />
-              <circle cx="10" cy="16.5" r="1.5" fill="#00f0ff" />
+              <path d="M4 3L10 14L16 3" stroke="#00e8f8" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" />
+              <path d="M7.5 3L10 8L12.5 3" stroke="#00e8f8" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" />
+              <circle cx="10" cy="16.5" r="1.5" fill="#00e8f8" />
             </svg>
           </div>
-          <span
-            className="font-bold text-on-surface group-hover:text-primary-container transition-colors"
-            style={{ fontSize: "16px", letterSpacing: "0.06em" }}
-          >
-            VERDICT
-          </span>
+          {/* Wordmark with a subtle teal left-rule */}
+          <div className="flex flex-col justify-center" style={{ borderLeft: "2px solid rgba(0,200,220,0.35)", paddingLeft: "10px" }}>
+            <span
+              className="font-bold leading-none transition-colors"
+              style={{ fontSize: "15px", letterSpacing: "0.12em", color: "#e0f4f8" }}
+            >
+              VERDICT
+            </span>
+            <span style={{ fontSize: "9px", letterSpacing: "0.18em", color: "rgba(0,200,220,0.55)", fontFamily: "var(--font-mono)", marginTop: "2px" }}>
+              INTELLIGENCE
+            </span>
+          </div>
         </Link>
 
         {/* Desktop nav links */}
