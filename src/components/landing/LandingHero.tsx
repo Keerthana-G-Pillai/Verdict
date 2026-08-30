@@ -78,15 +78,15 @@ export default function LandingHero() {
           <defs>
             {/* Primary diagonal lines at 35° */}
             <pattern id="diag-a" x="0" y="0" width="52" height="52" patternUnits="userSpaceOnUse" patternTransform="rotate(35)">
-              <line x1="0" y1="0" x2="0" y2="52" stroke="rgba(0,200,220,0.11)" strokeWidth="0.75" />
+              <line x1="0" y1="0" x2="0" y2="52" stroke="rgba(13,154,170,0.22)" strokeWidth="0.75" />
             </pattern>
             {/* Counter-diagonal lines at -20° — creates a crosshatch */}
             <pattern id="diag-b" x="0" y="0" width="80" height="80" patternUnits="userSpaceOnUse" patternTransform="rotate(-20)">
-              <line x1="0" y1="0" x2="0" y2="80" stroke="rgba(0,220,240,0.07)" strokeWidth="0.6" />
+              <line x1="0" y1="0" x2="0" y2="80" stroke="rgba(13,154,170,0.14)" strokeWidth="0.6" />
             </pattern>
             {/* Subtle horizontal lines */}
             <pattern id="h-scan" x="0" y="0" width="1" height="28" patternUnits="userSpaceOnUse">
-              <line x1="0" y1="0" x2="9999" y2="0" stroke="rgba(0,190,210,0.045)" strokeWidth="0.5" />
+              <line x1="0" y1="0" x2="9999" y2="0" stroke="rgba(13,154,170,0.09)" strokeWidth="0.5" />
             </pattern>
             {/* Vertical vignette mask — full coverage top, fades at bottom */}
             <linearGradient id="vmask" x1="0" y1="0" x2="0" y2="1">
@@ -198,35 +198,6 @@ export default function LandingHero() {
             </Link>
           </div>
 
-          {/* Floating stat cards */}
-          <div
-            className="hidden sm:flex items-center gap-4 mt-14 animate-fade-in-up"
-            style={{ animationDelay: "0.6s", opacity: 0 }}
-          >
-            {[
-              { value: "4-agent", label: "adversarial pipeline", icon: "hub" },
-              { value: "< 15s", label: "avg. analysis time", icon: "timer" },
-              { value: "Static + AI", label: "dual evidence layer", icon: "layers" },
-            ].map((stat) => (
-              <div
-                key={stat.label}
-                className="flex items-center gap-3 px-4 py-3 rounded-lg"
-                style={{
-                  backgroundColor: "rgba(0,240,255,0.04)",
-                  border: "1px solid rgba(0,240,255,0.14)",
-                  backdropFilter: "blur(10px)",
-                }}
-              >
-                <span className="material-symbols-outlined" style={{ fontSize: "16px", color: "#00f0ff" }}>
-                  {stat.icon}
-                </span>
-                <div className="text-left">
-                  <div className="font-bold text-on-surface" style={{ fontSize: "13px", lineHeight: 1.2 }}>{stat.value}</div>
-                  <div style={{ fontSize: "10px", color: "rgba(180,195,200,0.6)", fontFamily: "var(--font-mono)", letterSpacing: "0.04em" }}>{stat.label}</div>
-                </div>
-              </div>
-            ))}
-          </div>
         </div>
 
         {/* Scroll indicator */}
