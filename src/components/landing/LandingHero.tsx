@@ -103,19 +103,6 @@ export default function LandingHero() {
           <rect width="100%" height="100%" fill="url(#h-scan)" mask="url(#line-vmask)" />
         </svg>
 
-        {/* ── Central teal glow bloom */}
-        <div
-          className="absolute z-[2] pointer-events-none"
-          style={{
-            width: "900px",
-            height: "520px",
-            top: "45%",
-            left: "50%",
-            transform: "translate(-50%, -50%)",
-            background: "radial-gradient(ellipse at center, rgba(0,170,195,0.16) 0%, rgba(0,120,145,0.07) 45%, transparent 72%)",
-          }}
-        />
-
         {/* ── Bottom fade into the rest of the page */}
         <div
           className="absolute inset-0 z-[3] pointer-events-none"
