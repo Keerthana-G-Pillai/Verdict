@@ -66,11 +66,47 @@ export default function LandingHero() {
           <WebGLShader className="absolute inset-0" opacity={0.6} />
         </div>
 
+        {/* Dot-grid overlay */}
+        <div
+          className="absolute inset-0 z-[1] pointer-events-none"
+          style={{
+            backgroundImage: "radial-gradient(circle, rgba(0,240,255,0.12) 1px, transparent 1px)",
+            backgroundSize: "36px 36px",
+            maskImage: "radial-gradient(ellipse 80% 70% at 50% 40%, black 30%, transparent 100%)",
+          }}
+        />
+
+        {/* Large radial cyan glow behind headline */}
+        <div
+          className="absolute z-[2] pointer-events-none"
+          style={{
+            width: "720px",
+            height: "420px",
+            top: "50%",
+            left: "50%",
+            transform: "translate(-50%, -52%)",
+            background: "radial-gradient(ellipse at center, rgba(0,240,255,0.13) 0%, rgba(0,240,255,0.04) 45%, transparent 72%)",
+            filter: "blur(2px)",
+          }}
+        />
+
+        {/* Horizontal light-beam streak */}
+        <div
+          className="absolute z-[2] pointer-events-none"
+          style={{
+            width: "100%",
+            height: "1px",
+            top: "46%",
+            left: 0,
+            background: "linear-gradient(to right, transparent 5%, rgba(0,240,255,0.18) 30%, rgba(0,240,255,0.32) 50%, rgba(0,240,255,0.18) 70%, transparent 95%)",
+          }}
+        />
+
         {/* Overlay gradient — fades shader into content below */}
         <div
-          className="absolute inset-0 z-10 pointer-events-none"
+          className="absolute inset-0 z-[3] pointer-events-none"
           style={{
-            background: "linear-gradient(to bottom, transparent 0%, rgba(19,19,20,0.5) 60%, #131314 100%)",
+            background: "linear-gradient(to bottom, transparent 0%, rgba(19,19,20,0.45) 60%, #131314 100%)",
           }}
         />
 
@@ -78,19 +114,20 @@ export default function LandingHero() {
         <div className="relative z-20 max-w-5xl mx-auto px-margin-mobile md:px-margin-desktop text-center flex flex-col items-center">
           {/* Live badge */}
           <div
-            className="inline-flex items-center gap-2 px-3 py-1 mb-8 rounded-full border border-surface-variant animate-fade-in-up"
+            className="inline-flex items-center gap-2 px-3 py-1 mb-8 rounded-full animate-fade-in-up"
             style={{
               animationDelay: "0.1s",
               opacity: 0,
-              backgroundColor: "rgba(32,31,32,0.5)",
-              backdropFilter: "blur(4px)",
+              backgroundColor: "rgba(0,240,255,0.06)",
+              border: "1px solid rgba(0,240,255,0.25)",
+              backdropFilter: "blur(8px)",
             }}
           >
             <span
-              className="w-2 h-2 rounded-full bg-primary-container"
-              style={{ boxShadow: "0 0 8px rgba(0,240,255,0.8)" }}
+              className="w-2 h-2 rounded-full"
+              style={{ backgroundColor: "#00f0ff", boxShadow: "0 0 8px rgba(0,240,255,0.9)" }}
             />
-            <span className="text-label-mono text-on-surface-variant tracking-wider uppercase">
+            <span className="text-label-mono tracking-wider uppercase" style={{ color: "#00f0ff", fontSize: "11px" }}>
               Verdict v2.0 Live
             </span>
           </div>
@@ -101,7 +138,7 @@ export default function LandingHero() {
             style={{ animationDelay: "0.2s", opacity: 0 }}
           >
             Know the consequences before you make the{" "}
-            <span style={{ color: "#00f0ff" }}>change.</span>
+            <span style={{ color: "#00f0ff", textShadow: "0 0 32px rgba(0,240,255,0.5)" }}>change.</span>
           </h1>
 
           {/* Subtitle */}
@@ -119,25 +156,62 @@ export default function LandingHero() {
           >
             <Link
               href="/analyze"
-              className="w-full sm:w-auto px-8 py-3 bg-primary-container text-on-primary-container text-body-md font-bold rounded hover:bg-primary-fixed-dim transition-colors"
+              className="w-full sm:w-auto px-8 py-3 text-body-md font-bold rounded transition-all"
               style={{
-                boxShadow: "0 0 15px rgba(0,240,255,0.3)",
+                backgroundColor: "#00f0ff",
+                color: "#080d0e",
+                boxShadow: "0 0 20px rgba(0,240,255,0.4)",
               }}
               onMouseEnter={(e) => {
-                (e.currentTarget as HTMLElement).style.boxShadow = "0 0 25px rgba(0,240,255,0.5)";
+                (e.currentTarget as HTMLElement).style.boxShadow = "0 0 32px rgba(0,240,255,0.65)";
+                (e.currentTarget as HTMLElement).style.backgroundColor = "#1af5ff";
               }}
               onMouseLeave={(e) => {
-                (e.currentTarget as HTMLElement).style.boxShadow = "0 0 15px rgba(0,240,255,0.3)";
+                (e.currentTarget as HTMLElement).style.boxShadow = "0 0 20px rgba(0,240,255,0.4)";
+                (e.currentTarget as HTMLElement).style.backgroundColor = "#00f0ff";
               }}
             >
               Start Analyzing →
             </Link>
             <Link
               href="/simulations"
-              className="w-full sm:w-auto px-8 py-3 bg-transparent text-on-surface border border-outline-variant text-body-md rounded hover:bg-surface-container-high transition-colors"
+              className="w-full sm:w-auto px-8 py-3 bg-transparent text-on-surface text-body-md rounded transition-colors"
+              style={{ border: "1px solid rgba(0,240,255,0.22)" }}
+              onMouseEnter={(e) => { (e.currentTarget as HTMLElement).style.borderColor = "rgba(0,240,255,0.5)"; (e.currentTarget as HTMLElement).style.color = "#00f0ff"; }}
+              onMouseLeave={(e) => { (e.currentTarget as HTMLElement).style.borderColor = "rgba(0,240,255,0.22)"; (e.currentTarget as HTMLElement).style.color = ""; }}
             >
               Merge Simulation
             </Link>
+          </div>
+
+          {/* Floating stat cards */}
+          <div
+            className="hidden sm:flex items-center gap-4 mt-14 animate-fade-in-up"
+            style={{ animationDelay: "0.6s", opacity: 0 }}
+          >
+            {[
+              { value: "4-agent", label: "adversarial pipeline", icon: "hub" },
+              { value: "< 15s", label: "avg. analysis time", icon: "timer" },
+              { value: "Static + AI", label: "dual evidence layer", icon: "layers" },
+            ].map((stat) => (
+              <div
+                key={stat.label}
+                className="flex items-center gap-3 px-4 py-3 rounded-lg"
+                style={{
+                  backgroundColor: "rgba(0,240,255,0.04)",
+                  border: "1px solid rgba(0,240,255,0.14)",
+                  backdropFilter: "blur(10px)",
+                }}
+              >
+                <span className="material-symbols-outlined" style={{ fontSize: "16px", color: "#00f0ff" }}>
+                  {stat.icon}
+                </span>
+                <div className="text-left">
+                  <div className="font-bold text-on-surface" style={{ fontSize: "13px", lineHeight: 1.2 }}>{stat.value}</div>
+                  <div style={{ fontSize: "10px", color: "rgba(180,195,200,0.6)", fontFamily: "var(--font-mono)", letterSpacing: "0.04em" }}>{stat.label}</div>
+                </div>
+              </div>
+            ))}
           </div>
         </div>
 

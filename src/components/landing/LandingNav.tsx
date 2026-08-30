@@ -21,14 +21,24 @@ export default function LandingNav() {
 
   return (
     <>
-      <nav className="fixed top-0 left-0 w-full z-50 border-b border-outline-variant flex justify-between items-center h-16 px-lg"
-        style={{ backgroundColor: "rgba(19,19,20,0.8)", backdropFilter: "blur(12px)" }}
+      <nav
+        className="fixed top-0 left-0 w-full z-50 flex justify-between items-center h-16 px-lg"
+        style={{
+          backgroundColor: "rgba(13,14,16,0.85)",
+          backdropFilter: "blur(16px)",
+          borderBottom: "1px solid rgba(0,240,255,0.12)",
+          boxShadow: "0 1px 0 rgba(0,240,255,0.06)",
+        }}
       >
-        {/* Logo */}
-        <div className="flex items-center gap-sm">
+        {/* Logo — clicking goes home */}
+        <Link href="/" className="flex items-center gap-sm group">
           <div
-            className="w-8 h-8 rounded flex items-center justify-center border border-primary-container/40 shrink-0"
-            style={{ boxShadow: "0 0 12px rgba(0,240,255,0.2)" }}
+            className="w-8 h-8 rounded flex items-center justify-center shrink-0 transition-all duration-200"
+            style={{
+              border: "1px solid rgba(0,240,255,0.35)",
+              boxShadow: "0 0 12px rgba(0,240,255,0.2)",
+              backgroundColor: "rgba(0,240,255,0.05)",
+            }}
           >
             <svg width="20" height="20" viewBox="0 0 20 20" fill="none" aria-hidden="true">
               <path d="M4 3L10 14L16 3" stroke="#00f0ff" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" />
@@ -36,8 +46,13 @@ export default function LandingNav() {
               <circle cx="10" cy="16.5" r="1.5" fill="#00f0ff" />
             </svg>
           </div>
-          <span className="font-bold text-on-surface" style={{ fontSize: "16px", letterSpacing: "-0.01em" }}>VERDICT</span>
-        </div>
+          <span
+            className="font-bold text-on-surface group-hover:text-primary-container transition-colors"
+            style={{ fontSize: "16px", letterSpacing: "0.06em" }}
+          >
+            VERDICT
+          </span>
+        </Link>
 
         {/* Desktop nav links */}
         <div className="hidden md:flex items-center gap-md">
@@ -45,7 +60,10 @@ export default function LandingNav() {
             <a
               key={link.label}
               href={link.href}
-              className="text-on-surface-variant hover:text-primary-fixed-dim transition-colors text-body-md"
+              className="text-body-md transition-colors"
+              style={{ color: "rgba(180,195,200,0.8)" }}
+              onMouseEnter={(e) => { (e.currentTarget as HTMLElement).style.color = "#00f0ff"; }}
+              onMouseLeave={(e) => { (e.currentTarget as HTMLElement).style.color = "rgba(180,195,200,0.8)"; }}
             >
               {link.label}
             </a>
@@ -59,7 +77,10 @@ export default function LandingNav() {
             <>
               <Link
                 href="/dashboard"
-                className="hidden md:flex items-center gap-2 px-4 py-2 text-on-surface-variant hover:text-on-surface transition-colors text-body-md border border-outline-variant rounded hover:border-primary-fixed-dim"
+                className="hidden md:flex items-center gap-2 px-4 py-2 text-body-md transition-colors rounded"
+                style={{ color: "rgba(180,195,200,0.8)", border: "1px solid rgba(0,240,255,0.18)" }}
+                onMouseEnter={(e) => { (e.currentTarget as HTMLElement).style.color = "#00f0ff"; (e.currentTarget as HTMLElement).style.borderColor = "rgba(0,240,255,0.4)"; }}
+                onMouseLeave={(e) => { (e.currentTarget as HTMLElement).style.color = "rgba(180,195,200,0.8)"; (e.currentTarget as HTMLElement).style.borderColor = "rgba(0,240,255,0.18)"; }}
               >
                 <div
                   className="w-5 h-5 rounded-full flex items-center justify-center text-label-mono font-bold"
@@ -71,7 +92,10 @@ export default function LandingNav() {
               </Link>
               <button
                 onClick={() => signOut()}
-                className="hidden md:block text-on-surface-variant hover:text-on-surface transition-colors text-body-sm"
+                className="hidden md:block text-body-sm transition-colors"
+                style={{ color: "rgba(180,195,200,0.6)" }}
+                onMouseEnter={(e) => { (e.currentTarget as HTMLElement).style.color = "#ffffff"; }}
+                onMouseLeave={(e) => { (e.currentTarget as HTMLElement).style.color = "rgba(180,195,200,0.6)"; }}
               >
                 Sign out
               </button>
@@ -82,7 +106,10 @@ export default function LandingNav() {
               {supabaseConfigured && (
                 <button
                   onClick={openSignIn}
-                  className="hidden md:block px-4 py-2 text-on-surface-variant hover:text-on-surface transition-colors text-body-md border border-outline-variant rounded hover:border-primary-fixed-dim"
+                  className="hidden md:block px-4 py-2 text-body-md transition-colors rounded"
+                  style={{ color: "rgba(180,195,200,0.8)", border: "1px solid rgba(0,240,255,0.18)" }}
+                  onMouseEnter={(e) => { (e.currentTarget as HTMLElement).style.color = "#00f0ff"; (e.currentTarget as HTMLElement).style.borderColor = "rgba(0,240,255,0.4)"; }}
+                  onMouseLeave={(e) => { (e.currentTarget as HTMLElement).style.color = "rgba(180,195,200,0.8)"; (e.currentTarget as HTMLElement).style.borderColor = "rgba(0,240,255,0.18)"; }}
                 >
                   Sign in
                 </button>
@@ -90,7 +117,10 @@ export default function LandingNav() {
               {!supabaseConfigured && (
                 <Link
                   href="/dashboard"
-                  className="hidden md:block px-4 py-2 text-on-surface-variant hover:text-on-surface transition-colors text-body-md border border-outline-variant rounded hover:border-primary-fixed-dim"
+                  className="hidden md:block px-4 py-2 text-body-md transition-colors rounded"
+                  style={{ color: "rgba(180,195,200,0.8)", border: "1px solid rgba(0,240,255,0.18)" }}
+                  onMouseEnter={(e) => { (e.currentTarget as HTMLElement).style.color = "#00f0ff"; (e.currentTarget as HTMLElement).style.borderColor = "rgba(0,240,255,0.4)"; }}
+                  onMouseLeave={(e) => { (e.currentTarget as HTMLElement).style.color = "rgba(180,195,200,0.8)"; (e.currentTarget as HTMLElement).style.borderColor = "rgba(0,240,255,0.18)"; }}
                 >
                   Dashboard
                 </Link>
@@ -99,7 +129,14 @@ export default function LandingNav() {
           )}
           <Link
             href="/analyze"
-            className="px-4 py-2 bg-primary-container text-on-primary-container text-body-md font-semibold rounded hover:opacity-90 transition-opacity"
+            className="px-4 py-2 text-body-md font-semibold rounded transition-all"
+            style={{
+              backgroundColor: "#00f0ff",
+              color: "#0a0f10",
+              boxShadow: "0 0 16px rgba(0,240,255,0.35)",
+            }}
+            onMouseEnter={(e) => { (e.currentTarget as HTMLElement).style.boxShadow = "0 0 28px rgba(0,240,255,0.6)"; (e.currentTarget as HTMLElement).style.backgroundColor = "#1af5ff"; }}
+            onMouseLeave={(e) => { (e.currentTarget as HTMLElement).style.boxShadow = "0 0 16px rgba(0,240,255,0.35)"; (e.currentTarget as HTMLElement).style.backgroundColor = "#00f0ff"; }}
           >
             Get Started
           </Link>
