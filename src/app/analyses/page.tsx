@@ -86,8 +86,8 @@ export default function AnalysesPage() {
         {/* Header */}
         <header className="flex flex-col md:flex-row md:items-end justify-between mb-xl gap-4">
           <div>
-            <h1 className="text-display-lg font-bold text-on-surface tracking-tight">Change Analyses</h1>
-            <p className="text-body-lg text-on-surface-variant mt-sm">
+            <h1 className="text-headline-lg font-bold text-on-surface tracking-tight">Change Analyses</h1>
+            <p className="text-body-md text-on-surface-variant mt-sm">
               {allItems.length > 0
                 ? `${allItems.length} ${allItems.length === 1 ? "analysis" : "analyses"} in session`
                 : "No analyses yet — run your first change analysis."}

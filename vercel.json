@@ -1,0 +1,16 @@
+{
+  "functions": {
+    "src/app/api/analyze/route.ts": {
+      "maxDuration": 60
+    },
+    "src/app/api/simulate/route.ts": {
+      "maxDuration": 60
+    },
+    "src/app/api/status/route.ts": {
+      "maxDuration": 10
+    },
+    "src/app/auth/callback/route.ts": {
+      "maxDuration": 10
+    }
+  }
+}

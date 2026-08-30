@@ -63,7 +63,14 @@ export default function AnalysisTable({ records, viewAllHref = "/analyses" }: An
                 className="transition-colors cursor-pointer hover:bg-surface-container-highest/30"
                 style={{ borderBottom: "1px solid rgba(45,45,48,0.5)" }}
               >
-                <td className="py-md px-md text-on-surface">{record.name}</td>
+                <td className="py-md px-md text-on-surface">
+                  <Link
+                    href={`/analyze/${record.id}`}
+                    className="hover:text-primary-fixed transition-colors block w-full"
+                  >
+                    {record.name}
+                  </Link>
+                </td>
                 <td className="py-md px-md text-on-surface-variant">
                   {changeTypeLabels[record.type] ?? record.type}
                 </td>

@@ -1,6 +1,5 @@
 // ============================================================
 // VERDICT — Combined Store (Analysis + Simulation)
-// Replaces analysis-store.ts with a single unified store.
 // ============================================================
 
 import { create } from "zustand";
@@ -18,6 +17,7 @@ interface VerdictStore {
   saveToMemory: (result: AnalysisResult) => void;
   isInMemory: (id: string) => boolean;
   clearAnalysis: (id: string) => void;
+  removeFromMemory: (id: string) => void;
 
   // ── Simulation ────────────────────────────────────────────
   simulations: Record<string, SimulationResult>;
@@ -27,6 +27,8 @@ interface VerdictStore {
   getSimulation: (id: string) => SimulationResult | undefined;
   saveSimulationToMemory: (result: SimulationResult) => void;
   isSimulationInMemory: (id: string) => boolean;
+  clearSimulation: (id: string) => void;
+  removeSimulationFromMemory: (id: string) => void;
 }
 
 const safeStorage = () =>
@@ -72,6 +74,9 @@ export const useAnalysisStore = create<VerdictStore>()(
           return { analyses: rest };
         }),
 
+      removeFromMemory: (id) =>
+        set((state) => ({ memory: state.memory.filter((m) => m.id !== id) })),
+
       // ── Simulation state ────────────────────────────────
       simulations: {},
       simulationMemory: [],
@@ -101,6 +106,17 @@ export const useAnalysisStore = create<VerdictStore>()(
       },
 
       isSimulationInMemory: (id) => get().simulationMemory.some((m) => m.id === id),
+
+      clearSimulation: (id) =>
+        set((state) => {
+          const { [id]: _r, ...rest } = state.simulations;
+          return { simulations: rest };
+        }),
+
+      removeSimulationFromMemory: (id) =>
+        set((state) => ({
+          simulationMemory: state.simulationMemory.filter((m) => m.id !== id),
+        })),
     }),
     {
       name: "verdict-store-v2",

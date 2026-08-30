@@ -392,7 +392,7 @@ export default function SettingsPage() {
               </span>
               <div className="text-body-xs text-on-surface-variant leading-relaxed">
                 <p>
-                  Create a <code className="text-label-mono bg-surface-container-high px-1 rounded">partner-verdict/.env.local</code> file (copy from{" "}
+                  Create a <code className="text-label-mono bg-surface-container-high px-1 rounded">.env.local</code> file at the project root (copy from{" "}
                   <code className="text-label-mono bg-surface-container-high px-1 rounded">.env.example</code>) and add your keys.
                   The server reads them at startup — restart the dev server after changes.
                 </p>

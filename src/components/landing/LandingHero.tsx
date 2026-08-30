@@ -117,9 +117,8 @@ export default function LandingHero() {
             className="flex flex-col sm:flex-row items-center gap-4 animate-fade-in-up"
             style={{ animationDelay: "0.4s", opacity: 0 }}
           >
-            {/* One-click demo — loads the signature auth-conflict scenario and auto-submits */}
             <Link
-              href="/analyze?demo=auth-conflict"
+              href="/analyze"
               className="w-full sm:w-auto px-8 py-3 bg-primary-container text-on-primary-container text-body-md font-bold rounded hover:bg-primary-fixed-dim transition-colors"
               style={{
                 boxShadow: "0 0 15px rgba(0,240,255,0.3)",
@@ -131,13 +130,13 @@ export default function LandingHero() {
                 (e.currentTarget as HTMLElement).style.boxShadow = "0 0 15px rgba(0,240,255,0.3)";
               }}
             >
-              See VERDICT in Action →
+              Start Analyzing →
             </Link>
             <Link
-              href="/analyze"
+              href="/simulations"
               className="w-full sm:w-auto px-8 py-3 bg-transparent text-on-surface border border-outline-variant text-body-md rounded hover:bg-surface-container-high transition-colors"
             >
-              Analyze a Change
+              Merge Simulation
             </Link>
           </div>
         </div>
@@ -310,7 +309,7 @@ export default function LandingHero() {
                    Perform deep semantic analysis on two changes simultaneously. Compare behavioral assumptions for conflicts that Git cannot detect — then get an evidence-based recommendation.
                 </p>
                 <Link
-                  href="/simulate"
+                  href="/simulations"
                   className="inline-flex items-center gap-2 px-6 py-2.5 bg-transparent border border-tertiary-fixed-dim text-tertiary-fixed-dim text-label-mono uppercase tracking-wider rounded hover:bg-surface-container-high transition-colors"
                 >
                   Run Merge Simulation
@@ -369,14 +368,12 @@ export default function LandingHero() {
               <path d="M7.5 3L10 8L12.5 3" stroke="#849495" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" />
               <circle cx="10" cy="16.5" r="1.5" fill="#849495" />
             </svg>
-            <span className="text-label-mono text-on-surface-variant">© 2024 Verdict Systems</span>
+            <span className="text-label-mono text-on-surface-variant">© 2026 Verdict Systems</span>
           </div>
           <div className="flex gap-md">
-            {["Privacy", "Terms", "Status"].map((label) => (
-              <a key={label} href="#" className="text-label-mono text-on-surface-variant hover:text-on-surface transition-colors">
-                {label}
-              </a>
-            ))}
+            <a href="/docs" className="text-label-mono text-on-surface-variant hover:text-on-surface transition-colors">Docs</a>
+            <a href="/docs#privacy" className="text-label-mono text-on-surface-variant hover:text-on-surface transition-colors">Privacy</a>
+            <a href="/settings" className="text-label-mono text-on-surface-variant hover:text-on-surface transition-colors">Status</a>
           </div>
         </div>
       </footer>

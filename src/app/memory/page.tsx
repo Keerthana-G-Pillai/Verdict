@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useMemo } from "react";
+import { useState, useMemo, useCallback } from "react";
 import Link from "next/link";
 import AppShell from "@/components/layout/AppShell";
 import RiskBadge from "@/components/ui/RiskBadge";
@@ -43,6 +43,8 @@ const RISK_RANGE_OPTIONS: { label: string; min: number; max: number }[] = [
 export default function MemoryPage() {
   const memory = useAnalysisStore((s) => s.memory);
   const simulationMemory = useAnalysisStore((s) => s.simulationMemory);
+  const removeFromMemory = useAnalysisStore((s) => s.removeFromMemory);
+  const removeSimulationFromMemory = useAnalysisStore((s) => s.removeSimulationFromMemory);
 
   const [search, setSearch] = useState("");
   const [recordType, setRecordType] = useState<RecordType>("all");
@@ -50,8 +52,33 @@ export default function MemoryPage() {
   const [riskRangeIdx, setRiskRangeIdx] = useState(0);
   const [domainFilter, setDomainFilter] = useState<DomainFilter>("all");
   const [dateFilter, setDateFilter] = useState("all");
+  const [confirmDelete, setConfirmDelete] = useState<string | null>(null);
 
   const totalRecords = memory.length + simulationMemory.length;
+
+  const handleDeleteAnalysis = useCallback((id: string, e: React.MouseEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    if (confirmDelete === id) {
+      removeFromMemory(id);
+      setConfirmDelete(null);
+    } else {
+      setConfirmDelete(id);
+      setTimeout(() => setConfirmDelete(null), 3000);
+    }
+  }, [confirmDelete, removeFromMemory]);
+
+  const handleDeleteSimulation = useCallback((id: string, e: React.MouseEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    if (confirmDelete === id) {
+      removeSimulationFromMemory(id);
+      setConfirmDelete(null);
+    } else {
+      setConfirmDelete(id);
+      setTimeout(() => setConfirmDelete(null), 3000);
+    }
+  }, [confirmDelete, removeSimulationFromMemory]);
 
   // All unique domains from memory
   const allDomains = useMemo(() => {
@@ -147,8 +174,8 @@ export default function MemoryPage() {
       <div className="flex-1 flex flex-col min-h-screen pt-lg px-margin-desktop pb-xl">
         <header className="flex flex-col md:flex-row md:items-end justify-between mb-xl gap-4">
           <div>
-            <h1 className="text-display-lg font-bold text-on-surface tracking-tight">Engineering Memory</h1>
-            <p className="text-body-lg text-on-surface-variant mt-sm">
+            <h1 className="text-headline-lg font-bold text-on-surface tracking-tight">Engineering Memory</h1>
+            <p className="text-body-md text-on-surface-variant mt-sm">
               {totalRecords > 0
                 ? `${totalRecords} ${totalRecords === 1 ? "record" : "records"} saved to organizational knowledge`
                 : "Every saved analysis becomes part of your team's institutional knowledge."}
@@ -368,44 +395,60 @@ export default function MemoryPage() {
                 <div className="flex flex-col gap-md">
                   {filteredAnalyses.map((record) => {
                     const vCfg = VERDICT_CONFIG[record.verdict];
+                    const isConfirming = confirmDelete === record.id;
                     return (
-                      <Link key={record.id} href={`/analyze/${record.id}`}
-                        className="card p-lg hover:bg-surface-container-high transition-colors group">
-                        <div className="flex items-start justify-between gap-md">
-                          <div className="flex-1 min-w-0">
-                            <div className="flex items-center gap-sm mb-2 flex-wrap">
-                              <span className="text-label-mono px-2 py-0.5 rounded border uppercase tracking-wider"
-                                style={{ color: "#7df4ff", borderColor: "rgba(0,240,255,0.2)", backgroundColor: "rgba(0,240,255,0.06)", fontSize: "11px" }}>
-                                {record.changeType}
-                              </span>
-                              <RiskBadge level={scoreToLevel(record.riskScore)} />
-                              {record.result?.context?.detectedDomain && record.result.context.detectedDomain !== "general" && (
-                                <span className="text-label-mono px-2 py-0.5 rounded border"
-                                  style={{ color: "#b9cacb", borderColor: "#2d2d30", backgroundColor: "#141416", fontSize: "10px" }}>
-                                  {record.result.context.detectedDomain.replace(/-/g, " ")}
+                      <div key={record.id} className="relative group/row">
+                        <Link href={`/analyze/${record.id}`}
+                          className="card p-lg hover:bg-surface-container-high transition-colors block group">
+                          <div className="flex items-start justify-between gap-md">
+                            <div className="flex-1 min-w-0 pr-8">
+                              <div className="flex items-center gap-sm mb-2 flex-wrap">
+                                <span className="text-label-mono px-2 py-0.5 rounded border uppercase tracking-wider"
+                                  style={{ color: "#7df4ff", borderColor: "rgba(0,240,255,0.2)", backgroundColor: "rgba(0,240,255,0.06)", fontSize: "11px" }}>
+                                  {record.changeType}
                                 </span>
-                              )}
+                                <RiskBadge level={scoreToLevel(record.riskScore)} />
+                                {record.result?.context?.detectedDomain && record.result.context.detectedDomain !== "general" && (
+                                  <span className="text-label-mono px-2 py-0.5 rounded border"
+                                    style={{ color: "#b9cacb", borderColor: "#2d2d30", backgroundColor: "#141416", fontSize: "10px" }}>
+                                    {record.result.context.detectedDomain.replace(/-/g, " ")}
+                                  </span>
+                                )}
+                              </div>
+                              <h3 className="text-body-lg font-semibold text-on-surface truncate group-hover:text-primary-fixed transition-colors">
+                                {record.title}
+                              </h3>
+                              <p className="text-body-md text-on-surface-variant mt-1 line-clamp-2">{record.verdictRationale}</p>
                             </div>
-                            <h3 className="text-body-lg font-semibold text-on-surface truncate group-hover:text-primary-fixed transition-colors">
-                              {record.title}
-                            </h3>
-                            <p className="text-body-md text-on-surface-variant mt-1 line-clamp-2">{record.verdictRationale}</p>
+                            <div className="flex flex-col items-end gap-2 shrink-0">
+                              <div className="flex items-center gap-2">
+                                <span className="material-symbols-outlined text-[16px]" style={{ color: vCfg.color }}>{vCfg.icon}</span>
+                                <span className="text-label-mono" style={{ color: vCfg.color }}>{vCfg.label}</span>
+                              </div>
+                              <div className="text-headline-md font-bold"
+                                style={{ color: record.riskScore >= 60 ? "#ffb4ab" : record.riskScore >= 35 ? "#ffb95f" : "#6ffbbe" }}>
+                                {record.riskScore}
+                              </div>
+                              <span className="text-label-mono text-on-surface-variant" style={{ fontSize: "10px" }} suppressHydrationWarning>
+                                {new Date(record.savedAt).toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" })}
+                              </span>
+                            </div>
                           </div>
-                          <div className="flex flex-col items-end gap-2 shrink-0">
-                            <div className="flex items-center gap-2">
-                              <span className="material-symbols-outlined text-[16px]" style={{ color: vCfg.color }}>{vCfg.icon}</span>
-                              <span className="text-label-mono" style={{ color: vCfg.color }}>{vCfg.label}</span>
-                            </div>
-                            <div className="text-headline-md font-bold"
-                              style={{ color: record.riskScore >= 60 ? "#ffb4ab" : record.riskScore >= 35 ? "#ffb95f" : "#6ffbbe" }}>
-                              {record.riskScore}
-                            </div>
-                            <span className="text-label-mono text-on-surface-variant" style={{ fontSize: "10px" }} suppressHydrationWarning>
-                              {new Date(record.savedAt).toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" })}
-                            </span>
-                          </div>
-                        </div>
-                      </Link>
+                        </Link>
+                        {/* Delete button */}
+                        <button
+                          onClick={(e) => handleDeleteAnalysis(record.id, e)}
+                          className="absolute top-3 right-3 p-1.5 rounded opacity-0 group-hover/row:opacity-100 transition-all"
+                          style={isConfirming
+                            ? { backgroundColor: "rgba(147,0,10,0.3)", color: "#ffb4ab", opacity: 1 }
+                            : { backgroundColor: "rgba(45,45,48,0.6)", color: "#57606a" }}
+                          title={isConfirming ? "Click again to confirm delete" : "Remove from memory"}
+                        >
+                          <span className="material-symbols-outlined text-[14px]">
+                            {isConfirming ? "warning" : "delete"}
+                          </span>
+                        </button>
+                      </div>
                     );
                   })}
                 </div>
@@ -423,43 +466,59 @@ export default function MemoryPage() {
                 <div className="flex flex-col gap-md">
                   {filteredSims.map((record) => {
                     const vCfg = SIM_VERDICT_CONFIG[record.verdict];
+                    const isConfirming = confirmDelete === record.id;
                     return (
-                      <Link key={record.id} href={`/simulations/${record.id}`}
-                        className="card p-lg hover:bg-surface-container-high transition-colors group">
-                        <div className="flex items-start justify-between gap-md">
-                          <div className="flex-1 min-w-0">
-                            <div className="flex items-center gap-sm mb-2 flex-wrap">
-                              <span className="text-label-mono px-2 py-0.5 rounded border uppercase tracking-wider"
-                                style={{ color: "#6ffbbe", borderColor: "rgba(111,251,190,0.2)", backgroundColor: "rgba(111,251,190,0.06)", fontSize: "11px" }}>
-                                MERGE SIM
-                              </span>
-                              {record.criticalConflictCount > 0 && (
-                                <span className="text-label-mono px-2 py-0.5 rounded border"
-                                  style={{ color: "#ffb4ab", borderColor: "rgba(255,180,171,0.2)", backgroundColor: "rgba(255,180,171,0.05)", fontSize: "11px" }}>
-                                  {record.criticalConflictCount} Critical
+                      <div key={record.id} className="relative group/row">
+                        <Link href={`/simulations/${record.id}`}
+                          className="card p-lg hover:bg-surface-container-high transition-colors block group">
+                          <div className="flex items-start justify-between gap-md">
+                            <div className="flex-1 min-w-0 pr-8">
+                              <div className="flex items-center gap-sm mb-2 flex-wrap">
+                                <span className="text-label-mono px-2 py-0.5 rounded border uppercase tracking-wider"
+                                  style={{ color: "#6ffbbe", borderColor: "rgba(111,251,190,0.2)", backgroundColor: "rgba(111,251,190,0.06)", fontSize: "11px" }}>
+                                  MERGE SIM
                                 </span>
-                              )}
+                                {record.criticalConflictCount > 0 && (
+                                  <span className="text-label-mono px-2 py-0.5 rounded border"
+                                    style={{ color: "#ffb4ab", borderColor: "rgba(255,180,171,0.2)", backgroundColor: "rgba(255,180,171,0.05)", fontSize: "11px" }}>
+                                    {record.criticalConflictCount} Critical
+                                  </span>
+                                )}
+                              </div>
+                              <h3 className="text-body-lg font-semibold text-on-surface group-hover:text-primary-fixed transition-colors">
+                                {record.titleA} <span className="text-on-surface-variant mx-1">↔</span> {record.titleB}
+                              </h3>
+                              <p className="text-body-md text-on-surface-variant mt-1 line-clamp-2">{record.verdictRationale}</p>
                             </div>
-                            <h3 className="text-body-lg font-semibold text-on-surface group-hover:text-primary-fixed transition-colors">
-                              {record.titleA} <span className="text-on-surface-variant mx-1">↔</span> {record.titleB}
-                            </h3>
-                            <p className="text-body-md text-on-surface-variant mt-1 line-clamp-2">{record.verdictRationale}</p>
+                            <div className="flex flex-col items-end gap-2 shrink-0">
+                              <div className="flex items-center gap-2">
+                                <span className="material-symbols-outlined text-[16px]" style={{ color: vCfg.color }}>{vCfg.icon}</span>
+                                <span className="text-label-mono" style={{ color: vCfg.color }}>{vCfg.label}</span>
+                              </div>
+                              <div className="text-headline-md font-bold"
+                                style={{ color: record.integrationRiskScore >= 60 ? "#ffb4ab" : record.integrationRiskScore >= 35 ? "#ffb95f" : "#6ffbbe" }}>
+                                {record.integrationRiskScore}
+                              </div>
+                              <span className="text-label-mono text-on-surface-variant" style={{ fontSize: "10px" }} suppressHydrationWarning>
+                                {new Date(record.savedAt).toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" })}
+                              </span>
+                            </div>
                           </div>
-                          <div className="flex flex-col items-end gap-2 shrink-0">
-                            <div className="flex items-center gap-2">
-                              <span className="material-symbols-outlined text-[16px]" style={{ color: vCfg.color }}>{vCfg.icon}</span>
-                              <span className="text-label-mono" style={{ color: vCfg.color }}>{vCfg.label}</span>
-                            </div>
-                            <div className="text-headline-md font-bold"
-                              style={{ color: record.integrationRiskScore >= 60 ? "#ffb4ab" : record.integrationRiskScore >= 35 ? "#ffb95f" : "#6ffbbe" }}>
-                              {record.integrationRiskScore}
-                            </div>
-                            <span className="text-label-mono text-on-surface-variant" style={{ fontSize: "10px" }} suppressHydrationWarning>
-                              {new Date(record.savedAt).toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" })}
-                            </span>
-                          </div>
-                        </div>
-                      </Link>
+                        </Link>
+                        {/* Delete button */}
+                        <button
+                          onClick={(e) => handleDeleteSimulation(record.id, e)}
+                          className="absolute top-3 right-3 p-1.5 rounded opacity-0 group-hover/row:opacity-100 transition-all"
+                          style={isConfirming
+                            ? { backgroundColor: "rgba(147,0,10,0.3)", color: "#ffb4ab", opacity: 1 }
+                            : { backgroundColor: "rgba(45,45,48,0.6)", color: "#57606a" }}
+                          title={isConfirming ? "Click again to confirm delete" : "Remove from memory"}
+                        >
+                          <span className="material-symbols-outlined text-[14px]">
+                            {isConfirming ? "warning" : "delete"}
+                          </span>
+                        </button>
+                      </div>
                     );
                   })}
                 </div>

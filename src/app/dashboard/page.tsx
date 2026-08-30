@@ -140,14 +140,14 @@ export default function DashboardPage() {
 
   return (
     <AppShell>
-      <div className="flex-1 flex flex-col min-h-screen pt-lg px-margin-desktop pb-xl max-w-[calc(100vw-256px)]">
+      <div className="flex-1 flex flex-col min-h-screen pt-lg px-margin-desktop pb-xl overflow-x-hidden">
         {/* Page header */}
-        <header className="flex justify-between items-end mb-xl">
+        <header className="flex flex-col sm:flex-row sm:justify-between sm:items-end gap-4 mb-xl">
           <div>
-            <h1 className="text-display-lg font-bold text-on-surface tracking-tight">
+            <h1 className="text-headline-lg font-bold text-on-surface tracking-tight">
               Engineering Intelligence
             </h1>
-            <p className="text-body-lg text-on-surface-variant mt-sm">
+            <p className="text-body-md text-on-surface-variant mt-sm">
               {totalActivity > 0
                 ? `${totalActivity} analyses completed · ${memory.length + simulationMemory.length} saved to memory`
                 : "System status and recent architectural analyses."}
@@ -155,7 +155,7 @@ export default function DashboardPage() {
           </div>
           <Link
             href="/analyze"
-            className="bg-primary-container text-on-primary-fixed-variant hover:bg-primary-fixed-dim transition-colors duration-200 py-2 px-md rounded text-label-mono flex items-center gap-sm active:scale-95"
+            className="self-start sm:self-auto inline-flex items-center gap-sm px-4 py-2 bg-primary-container text-on-primary-fixed-variant hover:bg-primary-fixed-dim transition-colors duration-200 rounded text-label-mono active:scale-95"
           >
             <span className="material-symbols-outlined text-[16px]">play_arrow</span>
             Run Analysis

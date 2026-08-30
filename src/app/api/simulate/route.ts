@@ -1,12 +1,12 @@
 // ============================================================
 // POST /api/simulate
-// Merge simulation endpoint — 4-agent parallel pipeline for
-// each change, then semantic conflict synthesis.
+// Merge simulation endpoint — semantic conflict detection via AI.
 // Falls back to deterministic analysis if AI is unavailable.
 // ============================================================
 
 import { NextRequest, NextResponse } from "next/server";
 import { getAvailableChatFn } from "@/lib/ai/provider-manager";
+import { validateSimulationResponse } from "@/lib/ai/validator";
 import type { AISimulationRequest } from "@/lib/ai/types";
 import type { ChatMessage } from "@/lib/ai/types";
 
@@ -71,31 +71,23 @@ ${req.changeB.content.slice(0, 2000)}
 Identify all semantic conflicts between these two changes.`;
 }
 
-type ParsedConflict = {
-  domainsA: string[];
-  domainsB: string[];
-  directConflicts: unknown[];
-  semanticConflicts: unknown[];
-  recommendations: string[];
-  confidence: number;
-  reasoningSummary: string;
-};
-
-function parseConflictOutput(raw: string): ParsedConflict {
+function parseAndValidateConflictOutput(raw: string) {
   const stripped = raw.replace(/^```(?:json)?\s*/i, "").replace(/\s*```\s*$/, "").trim();
-  return JSON.parse(stripped) as ParsedConflict;
+  const parsed = JSON.parse(stripped);
+  // Run through the validator to ensure proper AISimulationResponse shape
+  return validateSimulationResponse(parsed);
 }
 
 async function runSimulationWithAI(
   req: AISimulationRequest,
   chatFn: (messages: ChatMessage[], opts?: { maxTokens?: number }) => Promise<string>
-): Promise<ParsedConflict> {
+) {
   const messages: ChatMessage[] = [
     { role: "system", content: buildConflictSystemPrompt() },
     { role: "user",   content: buildConflictUserMessage(req) },
   ];
   const raw = await chatFn(messages, { maxTokens: 1500 });
-  return parseConflictOutput(raw) as ParsedConflict;
+  return parseAndValidateConflictOutput(raw);
 }
 
 export async function POST(req: NextRequest) {
@@ -115,11 +107,11 @@ export async function POST(req: NextRequest) {
 
     console.log(`[/api/simulate] Running conflict detection with provider: ${chatProvider.providerName}`);
 
-    const parsed = await runSimulationWithAI(body, chatProvider.chatFn);
+    const validated = await runSimulationWithAI(body, chatProvider.chatFn);
 
     console.log(`[/api/simulate] Complete — provider: ${chatProvider.providerName}`);
     return NextResponse.json({
-      data: parsed,
+      data: validated,
       provider: chatProvider.providerName,
       aiEnhanced: true,
     });

@@ -9,7 +9,10 @@ import EvidenceFeed from "@/components/analysis/EvidenceFeed";
 import ConflictCard from "@/components/simulation/ConflictCard";
 import IntegrationStrategyPanel from "@/components/simulation/IntegrationStrategyPanel";
 import IntegrationVerdictCard from "@/components/simulation/IntegrationVerdictCard";
+import AuthModal from "@/components/auth/AuthModal";
 import { useAnalysisStore } from "@/store/analysis-store";
+import { useAuth } from "@/lib/auth/auth-context";
+import { useSupabasePersistence } from "@/hooks/useSupabasePersistence";
 import { mockSimulator, SIM_PIPELINE_STAGES } from "@/lib/simulation/mock-simulator";
 import { mergeAISimulation } from "@/lib/ai/normalizer";
 import type {
@@ -65,6 +68,8 @@ export default function SimulationResultPage() {
   const saveSimulation = useAnalysisStore((s) => s.saveSimulation);
   const saveSimulationToMemory = useAnalysisStore((s) => s.saveSimulationToMemory);
   const isSimulationInMemory = useAnalysisStore((s) => s.isSimulationInMemory);
+  const { user } = useAuth();
+  const { saveSimulationToDb, saveSimulationToMemoryDb } = useSupabasePersistence();
 
   const [stages, setStages] = useState<SimPipelineStage[]>(
     SIM_PIPELINE_STAGES.map((s) => ({ ...s }))
@@ -74,6 +79,8 @@ export default function SimulationResultPage() {
   const [isRunning, setIsRunning] = useState(false);
   const [activeTab, setActiveTab] = useState<TabId>("overview");
   const [memorySaved, setMemorySaved] = useState(false);
+  const [saveError, setSaveError] = useState<string | null>(null);
+  const [authModalOpen, setAuthModalOpen] = useState(false);
   const [aiProvider, setAiProvider] = useState<ProviderName | null>(null);
   const feedRef = useRef<HTMLDivElement>(null);
   const hasStarted = useRef(false);
@@ -156,9 +163,26 @@ export default function SimulationResultPage() {
     }
   }, [runSimulation]);
 
-  const handleSaveToMemory = useCallback(() => {
-    if (result) { saveSimulationToMemory(result); setMemorySaved(true); }
-  }, [result, saveSimulationToMemory]);
+  const handleSaveToMemory = useCallback(async () => {
+    if (!result) return;
+    setSaveError(null);
+
+    // Always save to local Zustand/localStorage
+    saveSimulationToMemory(result);
+
+    // If authenticated, also persist to Supabase
+    if (user) {
+      const [dbSave, memSave] = await Promise.all([
+        saveSimulationToDb(result),
+        saveSimulationToMemoryDb(result.id),
+      ]);
+      if (!dbSave.success || !memSave.success) {
+        setSaveError("Saved locally. Cloud sync failed — check your connection.");
+      }
+    }
+
+    setMemorySaved(true);
+  }, [result, saveSimulationToMemory, user, saveSimulationToDb, saveSimulationToMemoryDb]);
 
   const stored = getSimulation(id);
   if (!stored?.input) {
@@ -182,7 +206,13 @@ export default function SimulationResultPage() {
         {/* Header */}
         <header className="mb-xl">
           <div className="flex items-center gap-sm mb-sm text-label-mono text-on-surface-variant">
-            <Link href="/simulations" className="hover:text-on-surface transition-colors">Merge Simulation</Link>
+            <Link
+              href="/simulations"
+              className="inline-flex items-center gap-1 hover:text-on-surface transition-colors"
+            >
+              <span className="material-symbols-outlined text-[15px]">arrow_back</span>
+              Merge Simulation
+            </Link>
             <span>/</span>
             <span className="text-on-surface truncate max-w-xs">{changeA.title} ↔ {changeB.title}</span>
           </div>
@@ -211,46 +241,76 @@ export default function SimulationResultPage() {
             </div>
 
             {result && (
-              <div className="flex items-center gap-sm flex-wrap justify-end">
-                {/* AI provider badge */}
-                {aiProvider ? (
-                  <span className="inline-flex items-center gap-1 text-label-mono px-2.5 py-1 rounded border"
-                    style={{ color: "#00f0ff", borderColor: "rgba(0,240,255,0.25)", backgroundColor: "rgba(0,240,255,0.06)", fontSize: "10px" }}>
-                    <span className="material-symbols-outlined text-[11px]">auto_awesome</span>
-                    AI-ENHANCED · {aiProvider.toUpperCase()}
-                  </span>
-                ) : (
-                  <span className="inline-flex items-center gap-1 text-label-mono px-2.5 py-1 rounded border"
-                    style={{ color: "#57606a", borderColor: "rgba(87,96,106,0.3)", backgroundColor: "rgba(87,96,106,0.06)", fontSize: "10px" }}>
-                    <span className="material-symbols-outlined text-[11px]">rule</span>
-                    RULE-BASED ANALYSIS
-                  </span>
-                )}
-                {!memorySaved ? (
-                  <button
-                    onClick={handleSaveToMemory}
-                    className="inline-flex items-center gap-sm px-4 py-2 border border-outline-variant text-on-surface-variant text-label-mono rounded hover:border-primary-fixed-dim hover:text-on-surface transition-colors"
+              <div className="flex flex-col items-end gap-2">
+                <div className="flex items-center gap-sm flex-wrap justify-end">
+                  {/* AI provider badge */}
+                  {aiProvider ? (
+                    <span className="inline-flex items-center gap-1 text-label-mono px-2.5 py-1 rounded border"
+                      style={{ color: "#00f0ff", borderColor: "rgba(0,240,255,0.25)", backgroundColor: "rgba(0,240,255,0.06)", fontSize: "10px" }}>
+                      <span className="material-symbols-outlined text-[11px]">auto_awesome</span>
+                      AI-ENHANCED · {aiProvider.toUpperCase()}
+                    </span>
+                  ) : (
+                    <span className="inline-flex items-center gap-1 text-label-mono px-2.5 py-1 rounded border"
+                      style={{ color: "#57606a", borderColor: "rgba(87,96,106,0.3)", backgroundColor: "rgba(87,96,106,0.06)", fontSize: "10px" }}>
+                      <span className="material-symbols-outlined text-[11px]">rule</span>
+                      RULE-BASED ANALYSIS
+                    </span>
+                  )}
+                  {!memorySaved ? (
+                    <button
+                      onClick={handleSaveToMemory}
+                      className="inline-flex items-center gap-sm px-4 py-2 border border-outline-variant text-on-surface-variant text-label-mono rounded hover:border-primary-fixed-dim hover:text-on-surface transition-colors"
+                    >
+                      <span className="material-symbols-outlined text-[16px]">save</span>
+                      Save to Memory
+                    </button>
+                  ) : (
+                    <span className="inline-flex items-center gap-sm px-4 py-2 text-label-mono" style={{ color: "#6ffbbe" }}>
+                      <span className="material-symbols-outlined text-[16px]">check_circle</span>
+                      {user ? "Saved to Cloud Memory" : "Saved locally"}
+                    </span>
+                  )}
+                  <Link
+                    href="/simulations"
+                    className="inline-flex items-center gap-sm px-4 py-2 bg-primary-container text-on-primary-fixed-variant text-label-mono rounded hover:bg-primary-fixed-dim transition-colors"
                   >
-                    <span className="material-symbols-outlined text-[16px]">save</span>
-                    Save to Memory
+                    <span className="material-symbols-outlined text-[16px]">add</span>
+                    New Simulation
+                  </Link>
+                </div>
+                {memorySaved && !user && (
+                  <button
+                    onClick={() => setAuthModalOpen(true)}
+                    className="text-label-mono flex items-center gap-1 hover:underline"
+                    style={{ color: "#00f0ff", fontSize: "11px" }}
+                  >
+                    <span className="material-symbols-outlined text-[13px]">cloud_upload</span>
+                    Sign in to sync to cloud
                   </button>
-                ) : (
-                  <span className="inline-flex items-center gap-sm px-4 py-2 text-label-mono" style={{ color: "#6ffbbe" }}>
-                    <span className="material-symbols-outlined text-[16px]">check_circle</span>
-                    Saved to Engineering Memory
-                  </span>
                 )}
-                <Link
-                  href="/simulations"
-                  className="inline-flex items-center gap-sm px-4 py-2 bg-primary-container text-on-primary-fixed-variant text-label-mono rounded hover:bg-primary-fixed-dim transition-colors"
-                >
-                  <span className="material-symbols-outlined text-[16px]">add</span>
-                  New Simulation
-                </Link>
+                {saveError && (
+                  <p className="text-label-mono flex items-center gap-1" style={{ color: "#ffb95f", fontSize: "11px" }}>
+                    <span className="material-symbols-outlined text-[13px]">warning</span>
+                    {saveError}
+                  </p>
+                )}
               </div>
             )}
           </div>
         </header>
+
+        {/* Auth modal */}
+        <AuthModal
+          isOpen={authModalOpen}
+          onClose={() => setAuthModalOpen(false)}
+          defaultMode="signin"
+          promptMessage="Sign in to sync this simulation to your cloud Engineering Memory."
+          onSuccess={() => {
+            setAuthModalOpen(false);
+            handleSaveToMemory();
+          }}
+        />
 
         {/* Main layout */}
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-lg flex-1">

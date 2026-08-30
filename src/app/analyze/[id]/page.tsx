@@ -9,7 +9,10 @@ import EvidenceFeed from "@/components/analysis/EvidenceFeed";
 import FindingCard from "@/components/analysis/FindingCard";
 import VerdictCard from "@/components/analysis/VerdictCard";
 import EvidencePanel from "@/components/analysis/EvidencePanel";
+import AuthModal from "@/components/auth/AuthModal";
 import { useAnalysisStore } from "@/store/analysis-store";
+import { useAuth } from "@/lib/auth/auth-context";
+import { useSupabasePersistence } from "@/hooks/useSupabasePersistence";
 import { mockAnalyzer, PIPELINE_STAGES } from "@/lib/analysis/mock-analyzer";
 import { mergeAgentTrial } from "@/lib/ai/normalizer";
 import type { AgentTrialResult } from "@/lib/ai/agents/types";
@@ -38,6 +41,8 @@ export default function AnalysisResultPage() {
   const saveAnalysis = useAnalysisStore((s) => s.saveAnalysis);
   const saveToMemory = useAnalysisStore((s) => s.saveToMemory);
   const isInMemory = useAnalysisStore((s) => s.isInMemory);
+  const { user } = useAuth();
+  const { saveAnalysisToDb, saveToMemoryDb } = useSupabasePersistence();
 
   const [stages, setStages] = useState<PipelineStage[]>(
     PIPELINE_STAGES.map((s) => ({ ...s }))
@@ -47,6 +52,8 @@ export default function AnalysisResultPage() {
   const [isRunning, setIsRunning] = useState(false);
   const [activeTab, setActiveTab] = useState<TabId>("overview");
   const [memorySaved, setMemorySaved] = useState(false);
+  const [saveError, setSaveError] = useState<string | null>(null);
+  const [authModalOpen, setAuthModalOpen] = useState(false);
   const stored0 = getAnalysis(id);
   const [aiProvider, setAiProvider] = useState<ProviderName | null>(
     (stored0?.aiProvider as ProviderName | undefined) ?? null
@@ -139,12 +146,26 @@ export default function AnalysisResultPage() {
     }
   }, [id, runAnalysis]);
 
-  const handleSaveToMemory = useCallback(() => {
-    if (result) {
-      saveToMemory(result);
-      setMemorySaved(true);
+  const handleSaveToMemory = useCallback(async () => {
+    if (!result) return;
+    setSaveError(null);
+
+    // Always save to local Zustand/localStorage
+    saveToMemory(result);
+
+    // If authenticated, also save to Supabase
+    if (user) {
+      const [dbSave, memSave] = await Promise.all([
+        saveAnalysisToDb(result),
+        saveToMemoryDb(result.id),
+      ]);
+      if (!dbSave.success || !memSave.success) {
+        setSaveError("Saved locally. Cloud sync failed — check your connection.");
+      }
     }
-  }, [result, saveToMemory]);
+
+    setMemorySaved(true);
+  }, [result, saveToMemory, user, saveAnalysisToDb, saveToMemoryDb]);
 
   const stored = getAnalysis(id);
   const input = stored?.input;
@@ -171,7 +192,13 @@ export default function AnalysisResultPage() {
         <header className="mb-xl">
           <div className="flex items-center justify-between mb-sm">
             <div className="flex items-center gap-sm text-label-mono text-on-surface-variant">
-              <Link href="/analyze" className="hover:text-on-surface transition-colors">New Analysis</Link>
+              <Link
+                href="/analyze"
+                className="inline-flex items-center gap-1 hover:text-on-surface transition-colors"
+              >
+                <span className="material-symbols-outlined text-[15px]">arrow_back</span>
+                New Analysis
+              </Link>
               <span>/</span>
               <span className="text-on-surface truncate max-w-xs">{input.title}</span>
             </div>
@@ -214,32 +241,65 @@ export default function AnalysisResultPage() {
             </div>
 
             {result && (
-              <div className="flex items-center gap-sm">
-                {!memorySaved ? (
-                  <button
-                    onClick={handleSaveToMemory}
-                    className="inline-flex items-center gap-sm px-4 py-2 border border-outline-variant text-on-surface-variant text-label-mono rounded hover:border-primary-fixed-dim hover:text-on-surface transition-colors"
+              <div className="flex flex-col items-end gap-2">
+                <div className="flex items-center gap-sm flex-wrap justify-end">
+                  {!memorySaved ? (
+                    <button
+                      onClick={handleSaveToMemory}
+                      className="inline-flex items-center gap-sm px-4 py-2 border border-outline-variant text-on-surface-variant text-label-mono rounded hover:border-primary-fixed-dim hover:text-on-surface transition-colors"
+                    >
+                      <span className="material-symbols-outlined text-[16px]">save</span>
+                      {user ? "Save to Memory" : "Save to Memory"}
+                    </button>
+                  ) : (
+                    <span className="inline-flex items-center gap-sm px-4 py-2 text-label-mono" style={{ color: "#6ffbbe" }}>
+                      <span className="material-symbols-outlined text-[16px]">check_circle</span>
+                      {user ? "Saved to Cloud Memory" : "Saved locally"}
+                    </span>
+                  )}
+                  <Link
+                    href="/analyze"
+                    className="inline-flex items-center gap-sm px-4 py-2 bg-primary-container text-on-primary-fixed-variant text-label-mono rounded hover:bg-primary-fixed-dim transition-colors"
                   >
-                    <span className="material-symbols-outlined text-[16px]">save</span>
-                    Save to Memory
+                    <span className="material-symbols-outlined text-[16px]">add</span>
+                    New Analysis
+                  </Link>
+                </div>
+                {/* Sign-in nudge for guests */}
+                {memorySaved && !user && (
+                  <button
+                    onClick={() => setAuthModalOpen(true)}
+                    className="text-label-mono flex items-center gap-1 hover:underline"
+                    style={{ color: "#00f0ff", fontSize: "11px" }}
+                  >
+                    <span className="material-symbols-outlined text-[13px]">cloud_upload</span>
+                    Sign in to sync to cloud
                   </button>
-                ) : (
-                  <span className="inline-flex items-center gap-sm px-4 py-2 text-label-mono" style={{ color: "#6ffbbe" }}>
-                    <span className="material-symbols-outlined text-[16px]">check_circle</span>
-                    Saved to Engineering Memory
-                  </span>
                 )}
-                <Link
-                  href="/analyze"
-                  className="inline-flex items-center gap-sm px-4 py-2 bg-primary-container text-on-primary-fixed-variant text-label-mono rounded hover:bg-primary-fixed-dim transition-colors"
-                >
-                  <span className="material-symbols-outlined text-[16px]">add</span>
-                  New Analysis
-                </Link>
+                {/* Cloud sync error */}
+                {saveError && (
+                  <p className="text-label-mono flex items-center gap-1" style={{ color: "#ffb95f", fontSize: "11px" }}>
+                    <span className="material-symbols-outlined text-[13px]">warning</span>
+                    {saveError}
+                  </p>
+                )}
               </div>
             )}
           </div>
         </header>
+
+        {/* Auth modal */}
+        <AuthModal
+          isOpen={authModalOpen}
+          onClose={() => setAuthModalOpen(false)}
+          defaultMode="signin"
+          promptMessage="Sign in to sync this analysis to your cloud Engineering Memory."
+          onSuccess={() => {
+            setAuthModalOpen(false);
+            // Re-trigger save with auth now available
+            handleSaveToMemory();
+          }}
+        />
 
         {/* Main grid: pipeline sidebar + content */}
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-lg flex-1">

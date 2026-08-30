@@ -2,13 +2,13 @@
 
 import { useState, useCallback } from "react";
 import { useRouter } from "next/navigation";
+import Link from "next/link";
 import AppShell from "@/components/layout/AppShell";
 import ChangeTypeSelector from "@/components/analysis/ChangeTypeSelector";
 import type { ChangeType } from "@/lib/analysis/types";
 import type { SimulationChange, SimulationInput } from "@/lib/simulation/types";
 import { nanoid } from "@/lib/analysis/nanoid";
 import { useAnalysisStore } from "@/store/analysis-store";
-import { DEMO_SIMULATION_SCENARIOS } from "@/lib/demo-scenarios";
 
 interface ChangePanel {
   id: "a" | "b";
@@ -148,26 +148,6 @@ export default function SimulationsPage() {
   const [panelB, setPanelB] = useState<ChangePanel>(DEFAULT_PANEL("b"));
   const [errors, setErrors] = useState<{ a?: string; b?: string }>({});
   const [loading, setLoading] = useState(false);
-  const [showDemo, setShowDemo] = useState(false);
-
-  const loadDemoScenario = useCallback((scenarioId: string) => {
-    const scenario = DEMO_SIMULATION_SCENARIOS.find((s) => s.id === scenarioId);
-    if (!scenario) return;
-    setPanelA((p) => ({
-      ...p,
-      title: scenario.changeA.title,
-      changeType: scenario.changeA.changeType,
-      content: scenario.changeA.content,
-    }));
-    setPanelB((p) => ({
-      ...p,
-      title: scenario.changeB.title,
-      changeType: scenario.changeB.changeType,
-      content: scenario.changeB.content,
-    }));
-    setErrors({});
-    setShowDemo(false);
-  }, []);
 
   const handleSubmit = useCallback(async () => {
     const newErrors: typeof errors = {};
@@ -231,75 +211,21 @@ export default function SimulationsPage() {
       <div className="flex-1 flex flex-col min-h-screen pt-lg px-margin-desktop pb-xl">
         {/* Header */}
         <header className="mb-xl">
-          <div className="flex items-center justify-between mb-sm">
-            <div className="flex items-center gap-sm text-label-mono text-on-surface-variant">
-              <span className="material-symbols-outlined text-[14px]">account_tree</span>
-              <span>/</span>
-              <span className="text-on-surface">Merge Simulation</span>
-            </div>
-            {/* Demo mode toggle */}
-            <button
-              onClick={() => setShowDemo((v) => !v)}
-              className="inline-flex items-center gap-sm px-3 py-1.5 border border-outline-variant text-on-surface-variant text-label-mono rounded hover:border-primary-fixed-dim hover:text-on-surface transition-colors"
-            >
-              <span className="material-symbols-outlined text-[14px]">science</span>
-              Load Demo Scenario
-            </button>
+          <div className="flex items-center gap-sm text-label-mono text-on-surface-variant mb-sm">
+            <Link href="/dashboard" className="inline-flex items-center gap-1 hover:text-on-surface transition-colors">
+              <span className="material-symbols-outlined text-[14px]">home</span>
+              Dashboard
+            </Link>
+            <span>/</span>
+            <span className="text-on-surface">Merge Simulation</span>
           </div>
-          <h1 className="text-display-lg font-bold text-on-surface tracking-tight">
+          <h1 className="text-headline-lg font-bold text-on-surface tracking-tight">
             Can these changes safely coexist?
           </h1>
-          <p className="text-body-lg text-on-surface-variant mt-sm max-w-2xl">
+          <p className="text-body-md text-on-surface-variant mt-sm max-w-2xl">
             Compare two independent changes before they collide. VERDICT detects semantic conflicts that Git cannot.
           </p>
         </header>
-
-        {/* Demo scenario picker */}
-        {showDemo && (
-          <div className="card p-lg mb-xl">
-            <div className="flex items-center justify-between mb-md">
-              <h2 className="text-headline-md text-on-surface flex items-center gap-sm">
-                <span className="material-symbols-outlined text-[18px]" style={{ color: "#6ffbbe" }}>auto_awesome</span>
-                Demo Scenarios
-              </h2>
-              <button onClick={() => setShowDemo(false)} className="text-on-surface-variant hover:text-on-surface material-symbols-outlined text-[18px]">close</button>
-            </div>
-            <p className="text-body-md text-on-surface-variant mb-md">
-              These scenarios run through the real VERDICT simulation engine to show semantic conflict detection.
-            </p>
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-sm">
-              {DEMO_SIMULATION_SCENARIOS.map((scenario) => (
-                <button
-                  key={scenario.id}
-                  onClick={() => loadDemoScenario(scenario.id)}
-                  className="text-left px-4 py-4 rounded-lg border border-[#2d2d30] bg-[#141416] hover:border-primary-container/50 hover:bg-surface-container transition-all group relative overflow-hidden"
-                >
-                  {scenario.signatureDemo && (
-                    <div
-                      className="absolute top-2 right-2 text-label-mono px-2 py-0.5 rounded"
-                      style={{ backgroundColor: "rgba(0,240,255,0.1)", border: "1px solid rgba(0,240,255,0.25)", color: "#00f0ff", fontSize: "9px" }}
-                    >
-                      SIGNATURE DEMO
-                    </div>
-                  )}
-                  <div className="flex items-start gap-3">
-                    <span className="material-symbols-outlined text-on-surface-variant group-hover:text-primary-container transition-colors text-[20px] shrink-0 mt-0.5">{scenario.icon}</span>
-                    <div>
-                      <div className="text-body-md font-semibold text-on-surface mb-1">{scenario.label}</div>
-                      <div className="text-code-sm text-on-surface-variant mb-3">{scenario.description}</div>
-                      <div
-                        className="inline-flex items-center gap-1 text-label-mono px-2 py-0.5 rounded border"
-                        style={{ color: scenario.expectedVerdictColor, borderColor: `${scenario.expectedVerdictColor}33`, backgroundColor: `${scenario.expectedVerdictColor}0d`, fontSize: "10px" }}
-                      >
-                        Expected: {scenario.expectedVerdict}
-                      </div>
-                    </div>
-                  </div>
-                </button>
-              ))}
-            </div>
-          </div>
-        )}
 
         {/* Two-panel input grid */}
         <div className="grid grid-cols-1 xl:grid-cols-2 gap-lg mb-xl items-start">
