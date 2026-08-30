@@ -10,9 +10,9 @@ VERDICT is a production-quality AI platform that analyzes proposed engineering c
 
 ## 🏆 Hackathon Product
 
-Built for IBM's hackathon. VERDICT uses IBM Granite (via watsonx.ai) as its primary AI engine, with Groq and OpenRouter as free-tier fallbacks.
+Built for IBM's hackathon. VERDICT uses a multi-provider AI architecture with automatic fallback. Groq is the active primary AI provider. IBM watsonx (Granite) provider code is implemented and activates when credentials are configured. IBM Bob was used as the primary AI-assisted development environment throughout the entire build.
 
-> ⚠️ **Before final submission:** set `WATSONX_API_KEY` + `WATSONX_PROJECT_ID` in `.env.local` and swap the `PROVIDERS` array in `src/lib/ai/provider-manager.ts` back to `[watsonxProvider, groqProvider, openrouterProvider]` so IBM Granite runs first.
+See [`docs/submission/`](docs/submission/) for competition statements, demo results, and the full submission package.
 
 ---
 
